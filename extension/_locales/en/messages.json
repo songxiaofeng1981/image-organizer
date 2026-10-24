@@ -1,0 +1,14 @@
+{
+  "appName": {
+    "message": "Image Organizer"
+  },
+  "appShortName": {
+    "message": "Image Organizer"
+  },
+  "appDescription": {
+    "message": "Browse, sort and clean up the pictures in your Downloads folder. Works locally through a small Mac helper."
+  },
+  "actionTitle": {
+    "message": "Open Image Organizer"
+  }
+}

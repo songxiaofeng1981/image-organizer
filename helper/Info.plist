@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>CFBundleDisplayName</key><string>Image Organizer Helper</string>
+  <key>CFBundleExecutable</key><string>image-organizer-helper</string>
+  <key>CFBundleIdentifier</key><string>com.songxiaofeng.imageorganizer.helper</string>
+  <key>CFBundleName</key><string>Image Organizer Helper</string>
+  <key>CFBundlePackageType</key><string>APPL</string>
+  <key>CFBundleShortVersionString</key><string>2.2.0</string>
+  <key>CFBundleVersion</key><string>4</string>
+  <key>LSMinimumSystemVersion</key><string>12.0</string>
+  <key>LSBackgroundOnly</key><true/>
+  <key>NSDownloadsFolderUsageDescription</key><string>Image Organizer reads the pictures in Downloads only while its gallery page is open, to show, sort and move them to the Trash. 图片整理只在图库页打开时读取“下载”中的图片，用于显示、归类和移到废纸篓。</string>
+</dict>
+</plist>

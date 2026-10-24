@@ -1,0 +1,14 @@
+{
+  "appName": {
+    "message": "图片整理"
+  },
+  "appShortName": {
+    "message": "图片整理"
+  },
+  "appDescription": {
+    "message": "浏览、归类、清理“下载”文件夹里的图片。通过一个本机小助手在 Mac 上本地运行。"
+  },
+  "actionTitle": {
+    "message": "打开图片整理"
+  }
+}

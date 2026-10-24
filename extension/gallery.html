@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Image Organizer</title>
+  <link rel="icon" href="icons/icon32.png">
+  <link rel="stylesheet" href="gallery.css">
+  <script type="module" src="js/main.js"></script>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar" aria-label="Sidebar">
+      <div class="side-top"></div>
+      <nav id="sideNav" class="side-nav"></nav>
+      <div class="side-footer">
+        <span id="helperDot" class="helper-dot busy"></span>
+        <span id="helperLabel" class="helper-label"></span>
+        <button type="button" id="rescan" class="icon-button" data-i18n-title="rescan" data-i18n-label="rescan"><i data-icon="refresh"></i></button>
+        <button type="button" id="shortcuts" class="icon-button" data-i18n-title="shortcuts" data-i18n-label="shortcuts"><i data-icon="keyboard"></i></button>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="toolbar">
+        <div class="toolbar-view">
+          <button type="button" id="back" class="back-button" hidden data-i18n-label="back"><i data-icon="chevronLeft"></i></button>
+          <div class="titles">
+            <h1 id="viewTitle"></h1>
+            <div id="viewSub" class="view-sub"></div>
+          </div>
+          <div id="viewActions" class="view-actions"></div>
+        </div>
+        <div class="toolbar-tools">
+          <label class="search"><i data-icon="search"></i><input id="search" type="search" autocomplete="off" spellcheck="false" data-i18n-placeholder="search"></label>
+          <select id="sort" class="select">
+            <option value="newest" data-i18n="sort.newest"></option>
+            <option value="oldest" data-i18n="sort.oldest"></option>
+            <option value="name" data-i18n="sort.name"></option>
+            <option value="largest" data-i18n="sort.largest"></option>
+          </select>
+          <label class="zoom" data-i18n-title="thumbSize"><i data-icon="minus"></i><input id="size" type="range" min="100" max="360" step="10" data-i18n-label="thumbSize"><i data-icon="plus"></i></label>
+        </div>
+        <div class="selection-bar">
+          <button type="button" id="selClear" class="button small" data-i18n="selection.clear"></button>
+          <span id="selCount" class="sel-count"></span>
+          <button type="button" id="selAll" class="button small plain" data-i18n="selection.all"></button>
+          <span class="spacer"></span>
+          <button type="button" id="selCategory" class="button small"><i data-icon="tag"></i><span data-i18n="selection.category"></span></button>
+          <button type="button" id="selGroup" class="button small"><i data-icon="stack"></i><span data-i18n="selection.makeGroup"></span></button>
+          <button type="button" id="selTrash" class="button small danger-text"><i data-icon="trash"></i><span data-i18n="trash"></span></button>
+        </div>
+      </header>
+      <div id="scroller" class="scroller">
+        <div id="status" class="status" hidden></div>
+        <div id="empty" class="empty" hidden></div>
+      </div>
+    </main>
+  </div>
+
+  <div id="viewer" class="viewer" hidden role="dialog" aria-modal="true">
+    <header class="v-bar">
+      <button type="button" class="v-back" data-v="close" data-i18n-label="back"><i data-icon="chevronLeft"></i><span data-i18n="back"></span></button>
+      <div class="v-title"><strong id="vName"></strong><span id="vMeta"></span></div>
+      <div class="v-actions">
+        <button type="button" class="v-cat" data-v="category"><span class="dot"></span><span class="label"></span><i data-icon="chevronDown"></i></button>
+        <button type="button" class="icon-button" data-v="info" data-i18n-title="info.title" data-i18n-label="info.title"><i data-icon="info"></i></button>
+        <button type="button" class="icon-button danger" data-v="trash" data-i18n-title="trash" data-i18n-label="trash"><i data-icon="trash"></i></button>
+      </div>
+    </header>
+    <div class="v-body">
+      <div class="v-main">
+        <div id="vStage" class="v-stage"><img id="vImg" alt="" draggable="false"></div>
+        <button type="button" class="v-nav prev" data-v="prev" aria-label="Previous"><span><i data-icon="chevronLeft"></i></span></button>
+        <button type="button" class="v-nav next" data-v="next" aria-label="Next"><span><i data-icon="chevronRight"></i></span></button>
+      </div>
+      <aside id="vInfo" class="v-info"></aside>
+    </div>
+    <div id="vStrip" class="v-strip"></div>
+  </div>
+
+  <dialog id="nameDialog" class="sheet">
+    <form method="dialog">
+      <h3></h3>
+      <input type="text" maxlength="80" autocomplete="off" required>
+      <div class="sheet-actions">
+        <button type="submit" value="cancel" class="button" formnovalidate data-i18n="cancel"></button>
+        <button type="submit" value="ok" class="button primary" data-confirm></button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="keysDialog" class="sheet keys-sheet">
+    <form method="dialog">
+      <h3 data-i18n="shortcuts"></h3>
+      <div class="keys-columns">
+        <section><h4 data-i18n="keys.gridTitle"></h4><div class="keys-list" data-keys="keys.grid"></div></section>
+        <section><h4 data-i18n="keys.viewerTitle"></h4><div class="keys-list" data-keys="keys.viewer"></div></section>
+      </div>
+      <div class="sheet-actions"><button type="submit" class="button primary">OK</button></div>
+    </form>
+  </dialog>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <div id="dragGhost" class="drag-ghost"></div>
+</body>
+</html>
