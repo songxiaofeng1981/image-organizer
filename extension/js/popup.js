@@ -1,18 +1,18 @@
 // Toolbar popup: lists the pictures on the current page and saves the chosen ones into a category of the
-// picture library. Each picture is fetched inside the page (the page's own request), then the helper writes it.
-// 工具栏小窗口：列出当前网页上的图片，把选中的存进图片库的分类。图片在网页里取数据（和网页自己的请求一样），再由本机助手写入。
+// picture library, or into Downloads (always possible, and the only way without the helper). See saver.js.
+// 工具栏小窗口：列出当前网页上的图片，把选中的存进图片库的分类，或存到“下载”（随时可用，没有本机助手时只能这样）。见 saver.js。
 
-import { host, MIN_HELPER_VERSION, versionAtLeast } from './host.js';
 import * as store from './store.js';
-import { data, folderOf, finderTag } from './store.js';
+import { data, folderOf } from './store.js';
 import { collectImages, fetchImage } from './collect.js';
-import { formatDate } from './library.js';
+import { libraryStatus, bytesInPage, pageName, saveToCategory, saveToDownloads } from './saver.js';
 import { t, localizePage } from './i18n.js';
 
 const $ = s => document.querySelector(s);
 const SMALL = 200; // known sizes up to this are icons, avatars and buttons / 已知尺寸不超过这个的视为图标、头像、按钮
 
-const state = { tab: null, page: null, picked: new Set(), showSmall: false, ready: false, library: '' };
+// ready: pictures can go into categories (helper + library); otherwise only Downloads. / ready：能存进分类，否则只能存到“下载”。
+const state = { tab: null, page: null, picked: new Set(), showSmall: false, ready: false, library: '', busy: false };
 // The popup keeps its own small setting, so it never rewrites the gallery's data. / 小窗口单独保存自己的设置，不改写图库的数据。
 const POPUP_KEY = 'io:popup';
 
@@ -81,7 +81,9 @@ function render() {
 function updateSave() {
   const n = state.picked.size;
   $('#pSave').textContent = n ? t('popup.saveN', n) : t('popup.save');
-  $('#pSave').disabled = !n || !state.ready;
+  $('#pSave').disabled = !n || !state.ready || state.busy;
+  $('#pDownloads').textContent = n && !state.ready ? t('popup.saveDownloadsN', n) : t('popup.saveDownloads');
+  $('#pDownloads').disabled = !n || state.busy;
   $('#pAll').textContent = n && n === shown().length ? t('selection.none') : t('selection.all');
 }
 
@@ -108,22 +110,18 @@ $('#pShowSmall').onchange = e => {
 
 /** "Title_03" from the page title and the picture's place on the page. / 由网页标题和图片在页面中的位置生成名字。 */
 function fileName(x) {
-  const title = (state.page.title || new URL(state.page.url).hostname).replace(/[\\/:*?"<>|\n\r\t]+/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 60);
-  return `${title || 'image'}_${String(x.n).padStart(2, '0')}`;
-}
-
-function commentFor() {
-  const line = (k, v) => t('comment.line', t(k), v);
-  return [line('comment.page', state.page.title), line('comment.address', state.page.url), line('comment.filed', formatDate(Date.now()))].join('\n');
+  return `${pageName(state.page)}_${String(x.n).padStart(2, '0')}`;
 }
 
 /** The picture's bytes: from inside the page first, then from the extension. / 先在网页里取，取不到再由插件取。 */
 async function bytesOf(url) {
-  const [{ result } = {}] = await chrome.scripting.executeScript({ target: { tabId: state.tab.id }, func: fetchImage, args: [url] });
-  if (result?.data) return { ...result, via: 'page' };
-  const direct = await fetchImage(url);
-  if (direct.data) return { ...direct, via: 'extension' };
-  throw new Error(result?.error || direct.error || 'fetch_failed');
+  try {
+    return { ...(await bytesInPage(state.tab.id, url)), via: 'page' };
+  } catch (e) {
+    const direct = await fetchImage(url);
+    if (direct.data) return { ...direct, via: 'extension' };
+    throw e;
+  }
 }
 
 function mark(url, text, kind) {
@@ -136,11 +134,10 @@ function mark(url, text, kind) {
   tile.append(s);
 }
 
-$('#pSave').onclick = async () => {
-  const category = data.categories.find(c => c.id === $('#pCategory').value);
-  if (!category) return;
-  chrome.storage.local.set({ [POPUP_KEY]: { category: category.id } });
-  $('#pSave').disabled = true;
+/** Saves the chosen pictures, one by one, into a category or (category null) into Downloads. / 逐张保存到分类，或（category 为空）存到“下载”。 */
+async function saveChosen(category) {
+  state.busy = true;
+  updateSave();
   const chosen = state.page.images.filter(x => state.picked.has(x.url));
   let saved = 0;
   let already = 0;
@@ -149,16 +146,15 @@ $('#pSave').onclick = async () => {
     mark(x.url, t('popup.saving'), '');
     try {
       const got = await bytesOf(x.url);
-      const r = await host.save({
-        data: got.data,
-        name: fileName(x),
-        folder: folderOf(category.name),
-        tag: finderTag(category),
-        comment: commentFor(),
-        from: [x.url, state.page.url],
-      });
-      r.duplicate ? already++ : saved++;
-      mark(x.url, r.duplicate ? t('popup.already') : got.via === 'page' ? t('popup.saved') : t('popup.savedDirect'), 'done');
+      if (category) {
+        const r = await saveToCategory(got, fileName(x), category, state.page, x.url);
+        r.duplicate ? already++ : saved++;
+        mark(x.url, r.duplicate ? t('popup.already') : got.via === 'page' ? t('popup.saved') : t('popup.savedDirect'), 'done');
+      } else {
+        await saveToDownloads(got, fileName(x), state.page, x.url);
+        saved++;
+        mark(x.url, t('popup.saved'), 'done');
+      }
     } catch (e) {
       failed++;
       console.warn('save failed', x.url, e);
@@ -166,25 +162,31 @@ $('#pSave').onclick = async () => {
     }
     state.picked.delete(x.url);
   }
-  note(
-    [
-      saved ? t('popup.result', saved, category.name, `${state.library}/${folderOf(category.name)}`) : '',
-      already ? t('popup.resultAlready', already) : '',
-      failed ? t('popup.resultFailedN', failed) : '',
-    ].filter(Boolean).join(' '),
-  );
+  const where = category
+    ? t('popup.result', saved, category.name, `${state.library}/${folderOf(category.name)}`)
+    : t('popup.resultDownloads', saved, `${t('downloads.folder')}/${pageName(state.page)}`);
+  note([saved ? where : '', already ? t('popup.resultAlready', already) : '', failed ? t('popup.resultFailedN', failed) : ''].filter(Boolean).join(' '));
   if (saved || already) {
     const view = document.createElement('button');
     view.type = 'button';
     view.className = 'button small plain p-view';
     view.textContent = t('popup.viewInGallery');
-    view.onclick = () => openGallery(`cat:${category.id}`);
+    view.onclick = () => openGallery(category ? `cat:${category.id}` : '');
     $('#pNote').append(view);
-    // An open gallery reads the library again. / 已打开的图库重新读取图片库。
+    // An open gallery reads the library and Downloads again. / 已打开的图库重新读取图片库和“下载”。
     chrome.runtime.sendMessage?.({ type: 'library-changed' })?.catch?.(() => {});
   }
+  state.busy = false;
   updateSave();
+}
+
+$('#pSave').onclick = () => {
+  const category = data.categories.find(c => c.id === $('#pCategory').value);
+  if (!category) return;
+  chrome.storage.local.set({ [POPUP_KEY]: { category: category.id } });
+  saveChosen(category);
 };
+$('#pDownloads').onclick = () => saveChosen(null);
 
 async function start() {
   localizePage();
@@ -212,17 +214,16 @@ async function start() {
   render();
   if (!state.page.images.length) note(t('popup.noPictures'));
 
-  // Saving needs the helper and a connected picture library. / 保存需要本机助手和已连接的图片库。
-  try {
-    const hello = await host.hello();
-    if (!versionAtLeast(hello.version, MIN_HELPER_VERSION)) throw new Error('outdated');
-    const lib = await host.config(t('library.folderName'));
-    if (!lib.library) return note(t('popup.noLibrary'));
-    if (!lib.available) return note(t('toast.libraryOffline', lib.library));
-    state.library = lib.library;
-  } catch {
-    return note(t('popup.noHelper'));
+  // Categories need the helper and a connected picture library; without them only Downloads is offered.
+  // 存进分类需要本机助手和已连接的图片库；没有时只提供“存到下载”。
+  const status = await libraryStatus();
+  if (!status.ok) {
+    document.body.classList.add('downloads-only');
+    $('#pDownloads').classList.add('primary');
+    if (state.page.images.length) note(status.note);
+    return;
   }
+  state.library = status.library;
   const select = $('#pCategory');
   select.replaceChildren(
     ...data.categories.map(c => {

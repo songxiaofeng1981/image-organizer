@@ -43,7 +43,8 @@ scripts/package.sh    release zip (universal helper)
 
 ## Rules / 规则
 
-- No build step; no network requests in extension or helper; helper stdout is protocol only.
+- No build step; the helper never goes online; the extension fetches only pictures the user picked on a page
+  (inside that page first) and sends nothing anywhere; helper stdout is protocol only.
 - Every UI string in `i18n.js`, both languages. Docs: change both language versions.
 - Extension CSP: no `style="…"` in HTML strings; set colors with CSSOM (`el.style.x`, `paintDots`).
 - Helper changes: add checks to `dev/protocol_test.py`; bump `helperVersion`, `helper/Info.plist`

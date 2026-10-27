@@ -154,6 +154,7 @@ Chrome 插件不能随意读取本地文件夹。File System Access API 每次�
 | `{op: "file", items: [{path, comment?, removeTag?}], folder, tag: {name, color}}` | `{type: "result", ok, moved: [{from, to, duplicate?}], failed: [...]}` |
 | `{op: "unfile", items: [{path, removeTag?}]}` | 格式同 `file`；`to` 相对于“下载” |
 | `{op: "renameFolder", from, to, removeTag, tag}` | `{type: "result", ok}`；`to` 已存在时报错 `folder_exists` |
+| `{op: "save", data, name, folder, tag, comment, from: [图片网址, 网页网址]}` | `{type: "result", ok, path, duplicate?}`。`data` 是在网页里取到的图片（base64）；类型由数据本身判断（不是图片报 `unsupported_type`）；图片库里已有（SHA-256 相同）时返回 `duplicate: true`，不写文件。会写入来源网址、标签、注释和索引。 |
 | 出错 | `{type: "error", error}`，带一个简短代码，如 `invalid_path`、`not_found`、`no_downloads`、`no_library`、`library_offline`、`bad_library`、`invalid_folder` |
 
 `list` 返回的每一项：`{path, name, folder, ext, size, added, modified, width, height}`，以及仅在有值时才带的 `make`、`model`、`screenshot: true`、`frames`（>1）、`from`（域名）和 `duplicateOf`（原件路径）。`path` 和 `folder` 相对于“下载”；图片库里的图，`path` 是 `lib:` 加图片库内的路径，并带有 `library: true`、`filed`，以及（来自索引的）`originalName`，它们的 `added` 是当初的下载时间。`width`/`height` 已考虑 EXIF 方向，未知时为 0（如 SVG）。

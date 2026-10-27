@@ -56,10 +56,10 @@
 <rect class="frame" x="340" y="52" width="600" height="148" rx="14"/>
 <text class="frame-label" x="356" y="72" text-anchor="start">Chrome 插件 · 纯 HTML/CSS/JS 模块，不需要构建</text>
 <rect class="accent" x="356" y="84" width="182" height="100" rx="10"/>
-<text class="h" x="370" y="106" text-anchor="start">工具栏小窗口</text>
-<text class="t" x="370" y="125" text-anchor="start">popup.html · popup.js</text>
-<text class="t" x="370" y="142" text-anchor="start">挑选本页的图片</text>
-<text class="s" x="370" y="159" text-anchor="start">存进某个分类</text>
+<text class="h" x="370" y="106" text-anchor="start">小窗口 · 右键菜单</text>
+<text class="t" x="370" y="125" text-anchor="start">popup.js · background.js</text>
+<text class="t" x="370" y="142" text-anchor="start">挑选网页上的图片</text>
+<text class="s" x="370" y="159" text-anchor="start">存进分类或“下载”</text>
 <rect class="accent" x="552" y="84" width="196" height="100" rx="10"/>
 <text class="h" x="566" y="106" text-anchor="start">图库页面</text>
 <text class="t" x="566" y="125" text-anchor="start">gallery.html · main.js</text>
@@ -79,6 +79,7 @@
 <path class="line" d="M447,184 L447,218" marker-end="url(#a)"/>
 <path class="line" d="M447,246 L447,300" marker-end="url(#a)"/>
 <text class="label" x="455" y="278" text-anchor="start">save 存图</text>
+<text class="s" x="455" y="293" text-anchor="start">没有助手时由 Chrome 存到“下载”</text>
 <path class="line" d="M650,184 L650,218" marker-end="url(#a)"/>
 <path class="line" d="M650,246 L650,300" marker-end="url(#a)"/>
 <text class="label" x="658" y="278" text-anchor="start">list · thumb · full · file · unfile · trash · renameFolder</text>
@@ -89,7 +90,7 @@
 <text class="s" x="354" y="375" text-anchor="start">settings.json：图片库的位置</text>
 <rect class="box" x="20" y="300" width="280" height="140" rx="10"/>
 <text class="h" x="34" y="322" text-anchor="start">基本原则</text>
-<text class="t" x="34" y="341" text-anchor="start">不发任何网络请求</text>
+<text class="t" x="34" y="341" text-anchor="start">本机助手从不联网</text>
 <text class="t" x="34" y="358" text-anchor="start">从不直接删除：只进废纸篓</text>
 <text class="t" x="34" y="375" text-anchor="start">跨硬盘复制要校验</text>
 <text class="t" x="34" y="392" text-anchor="start">（大小 + SHA-256）</text>

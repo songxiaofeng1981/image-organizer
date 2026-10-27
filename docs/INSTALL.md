@@ -12,16 +12,16 @@ Microsoft Edge, Brave, Arc and Vivaldi also work; the steps are the same.
 ## Step 1: Download
 
 1. Open the [latest release page](https://github.com/songxiaofeng1981/image-organizer/releases/latest).
-2. Under **Assets**, click **`image-organizer-v2.3.0.zip`** (the version number may be higher).
+2. Under **Assets**, click **`image-organizer-v2.4.0.zip`** (the version number may be higher).
    Do not click "Source code": that version needs developer tools.
-3. Open your **Downloads** folder and double-click the zip file. A folder named `image-organizer-v2.3.0` appears.
+3. Open your **Downloads** folder and double-click the zip file. A folder named `image-organizer-v2.4.0` appears.
 
 ## Step 2: Run the installer
 
 1. Open **Terminal**: press `⌘ Space`, type `Terminal`, press `Return`.
 2. In the Terminal window, type `bash` followed by **one space**. Don't press Return yet.
-3. Drag **`install.sh`** from the `image-organizer-v2.3.0` folder into the Terminal window.
-   The line now looks something like `bash /Users/you/Downloads/image-organizer-v2.3.0/install.sh`.
+3. Drag **`install.sh`** from the `image-organizer-v2.4.0` folder into the Terminal window.
+   The line now looks something like `bash /Users/you/Downloads/image-organizer-v2.4.0/install.sh`.
 4. Press `Return`.
 
 After a few seconds it prints **"Done!"** and opens Chrome's extensions page.
@@ -52,7 +52,7 @@ Your pictures appear. 🎉
 
 ## Step 5: Tidy up
 
-You can delete the `image-organizer-v2.3.0` folder and the zip file now. Everything needed was copied to:
+You can delete the `image-organizer-v2.4.0` folder and the zip file now. Everything needed was copied to:
 
 - `~/Applications/Image Organizer/extension` (the extension)
 - `~/Library/Application Support/ImageOrganizer` (the helper)

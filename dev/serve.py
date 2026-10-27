@@ -98,6 +98,11 @@ class Handler(SimpleHTTPRequestHandler):
             html = open(os.path.join(EXT, "popup.html"), encoding="utf-8").read()
             html = html.replace('<script type="module"', '<script src="/__dev/chrome-shim.js"></script>\n  <script type="module"', 1)
             return self.reply(200, "text/html; charset=utf-8", html.encode())
+        # The background script in a normal tab, to test the right-click menu. / 在普通标签页里运行后台脚本，测试右键菜单。
+        if self.path.split("?")[0] == "/__dev/background.html":
+            html = ('<!doctype html><meta charset="utf-8"><title>background</title>'
+                    '<script src="/__dev/chrome-shim.js"></script><script type="module" src="/background.js"></script>')
+            return self.reply(200, "text/html; charset=utf-8", html.encode())
         if self.path == "/__dev/chrome-shim.js":
             return self.reply(200, "text/javascript", open(os.path.join(HERE, "chrome-shim.js"), "rb").read())
         # A sample web page for the toolbar popup, with pictures from the sample folder.

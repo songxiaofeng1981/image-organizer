@@ -60,12 +60,12 @@
 <text class="h" x="404" y="104" text-anchor="start">popup.js</text>
 <text class="t" x="404" y="123" text-anchor="start">toolbar popup: list this page's</text>
 <text class="t" x="404" y="140" text-anchor="start">pictures, save the chosen ones</text>
-<text class="s" x="404" y="157" text-anchor="start">uses: collect · store · host · library · i18n</text>
+<text class="s" x="404" y="157" text-anchor="start">uses: collect · saver · store · i18n</text>
 <rect class="accent" x="740" y="82" width="190" height="112" rx="10"/>
 <text class="h" x="754" y="104" text-anchor="start">background.js</text>
-<text class="t" x="754" y="123" text-anchor="start">service worker: toolbar click</text>
-<text class="t" x="754" y="140" text-anchor="start">when there is no popup</text>
-<text class="s" x="754" y="157" text-anchor="start">later: the right-click menu</text>
+<text class="t" x="754" y="123" text-anchor="start">right-click menu on pictures:</text>
+<text class="t" x="754" y="140" text-anchor="start">Save to Picture Library ▸</text>
+<text class="s" x="754" y="157" text-anchor="start">uses: saver · store · i18n</text>
 <text class="frame-label" x="30" y="236" text-anchor="start">Views and features</text>
 <rect class="box" x="30" y="248" width="210" height="96" rx="10"/>
 <text class="h" x="44" y="270" text-anchor="start">library.js</text>
@@ -88,25 +88,30 @@
 <text class="t" x="734" y="306" text-anchor="start">collectImages, fetchImage</text>
 <text class="s" x="734" y="323" text-anchor="start">no imports</text>
 <text class="frame-label" x="30" y="386" text-anchor="start">Shared modules</text>
-<rect class="box" x="30" y="398" width="210" height="96" rx="10"/>
+<rect class="box" x="30" y="398" width="168" height="96" rx="10"/>
 <text class="h" x="44" y="420" text-anchor="start">store.js</text>
 <text class="t" x="44" y="439" text-anchor="start">io:v2 storage, migration,</text>
-<text class="t" x="44" y="456" text-anchor="start">category ↔ library folder</text>
+<text class="t" x="44" y="456" text-anchor="start">category ↔ folder</text>
 <text class="s" x="44" y="473" text-anchor="start">uses: i18n</text>
-<rect class="box" x="260" y="398" width="210" height="96" rx="10"/>
-<text class="h" x="274" y="420" text-anchor="start">images.js</text>
-<text class="t" x="274" y="439" text-anchor="start">thumbnail queue</text>
-<text class="t" x="274" y="456" text-anchor="start">and cache</text>
-<text class="s" x="274" y="473" text-anchor="start">uses: host</text>
-<rect class="box" x="490" y="398" width="210" height="96" rx="10"/>
-<text class="h" x="504" y="420" text-anchor="start">ui.js</text>
-<text class="t" x="504" y="439" text-anchor="start">icons, menus, toasts,</text>
-<text class="t" x="504" y="456" text-anchor="start">name dialog, color dots</text>
-<text class="s" x="504" y="473" text-anchor="start">uses: i18n</text>
-<rect class="box" x="720" y="398" width="210" height="96" rx="10"/>
-<text class="h" x="734" y="420" text-anchor="start">i18n.js</text>
-<text class="t" x="734" y="439" text-anchor="start">every UI string,</text>
-<text class="t" x="734" y="456" text-anchor="start">English + Chinese</text>
+<rect class="box" x="210" y="398" width="168" height="96" rx="10"/>
+<text class="h" x="224" y="420" text-anchor="start">saver.js</text>
+<text class="t" x="224" y="439" text-anchor="start">save one picture: into a</text>
+<text class="t" x="224" y="456" text-anchor="start">category or Downloads</text>
+<text class="s" x="224" y="473" text-anchor="start">uses: host · collect · store</text>
+<rect class="box" x="390" y="398" width="168" height="96" rx="10"/>
+<text class="h" x="404" y="420" text-anchor="start">images.js</text>
+<text class="t" x="404" y="439" text-anchor="start">thumbnail queue</text>
+<text class="t" x="404" y="456" text-anchor="start">and cache</text>
+<text class="s" x="404" y="473" text-anchor="start">uses: host</text>
+<rect class="box" x="570" y="398" width="168" height="96" rx="10"/>
+<text class="h" x="584" y="420" text-anchor="start">ui.js</text>
+<text class="t" x="584" y="439" text-anchor="start">icons, menus, toasts,</text>
+<text class="t" x="584" y="456" text-anchor="start">name dialog, color dots</text>
+<text class="s" x="584" y="473" text-anchor="start">uses: i18n</text>
+<rect class="box" x="750" y="398" width="168" height="96" rx="10"/>
+<text class="h" x="764" y="420" text-anchor="start">i18n.js</text>
+<text class="t" x="764" y="439" text-anchor="start">every UI string,</text>
+<text class="t" x="764" y="456" text-anchor="start">English + Chinese</text>
 <text class="frame-label" x="30" y="536" text-anchor="start">Bridge to the Mac</text>
 <rect class="accent" x="30" y="548" width="900" height="50" rx="10"/>
 <text class="h" x="44" y="570" text-anchor="start">host.js</text>
@@ -130,8 +135,9 @@
 <path class="line" d="M310,194 L360,248" marker-end="url(#a)"/>
 <path class="line" d="M350,194 L585,248" marker-end="url(#a)"/>
 <path class="line" d="M600,194 L825,248" marker-end="url(#a)"/>
-<path class="line gray" d="M200,344 L200,398" marker-end="url(#g)"/>
-<path class="line gray" d="M360,344 L360,398" marker-end="url(#g)"/>
-<path class="line" d="M360,494 L360,548" marker-end="url(#a)"/>
+<path class="line gray" d="M114,344 L114,398" marker-end="url(#g)"/>
+<path class="line gray" d="M430,344 L430,398" marker-end="url(#g)"/>
+<path class="line" d="M474,494 L474,548" marker-end="url(#a)"/>
+<path class="line" d="M294,494 L294,548" marker-end="url(#a)"/>
 <path class="line" d="M480,598 L480,652" marker-end="url(#a)"/>
 </svg>

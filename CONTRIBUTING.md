@@ -66,8 +66,9 @@ After changing `helper/ImageOrganizerHelper.swift`, run `bash install.sh` again.
    **本机助手只处理“下载”里的图片。** 所有路径都必须经过 `resolve()`。不要增加写入、重命名或删除的操作。移到废纸篓是它唯一会做的修改。
 2. **Never delete for real.** Use the Trash, and keep Undo working.
    **永远不真正删除。** 用废纸篓，并保证撤销可用。
-3. **No network requests** from the helper or the extension without discussing it in an issue first.
-   **不经 issue 讨论，助手和插件都不要加任何网络请求。**
+3. **No network requests** from the helper, and none from the extension except fetching the pictures the user picked
+   on a web page, without discussing it in an issue first.
+   **不经 issue 讨论，助手不要加任何网络请求；插件只能取用户在网页上选中的图片，不加别的网络请求。**
 4. **Nothing on the helper's stdout** except protocol messages. Use `stderr` for logging.
    **助手的 stdout 只能输出协议消息。** 日志请输出到 `stderr`。
 5. **Keep the extension build-free**: plain HTML, CSS and ES modules.

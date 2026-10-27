@@ -6,7 +6,7 @@
 
 import { t } from './i18n.js';
 
-const KEY = 'io:v2';
+export const KEY = 'io:v2';
 // Keys used by version 1.x of the extension. Read once to migrate, then left alone.
 // 1.x 版本使用的键。只在迁移时读取一次，之后不再改动。
 const OLD_CATEGORIES = 'image-organizer:.image-categories.json';

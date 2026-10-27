@@ -1,10 +1,13 @@
 # Changelog / 更新记录
 
-## Unreleased — 2.4 in development / 未发布 — 2.4 开发中
+## v2.4.0 — 2026-10-28
 
-Save pictures from the web page you are viewing straight into a category. Not finished: the capture page and the right-click menu are still to come. / 把正在看的网页上的图片直接存进分类。还没做完：抓取页面和右键菜单还没做。
+Save pictures from the web page you are viewing straight into a category. / 把正在看的网页上的图片直接存进分类。
 
 - **Toolbar popup.** Lists the pictures on the current page (the largest size the page offers, small icons hidden, the same picture at two sizes counted once), and saves the chosen ones into a category. Each picture is fetched inside the page, like the page itself loads it. On X's photo viewer only the post's photos are listed. / **工具栏小窗口。** 列出当前网页上的图片（取网页提供的最大尺寸，隐藏小图标，同一张图的两个尺寸只算一张），把选中的存进分类。每张图都在网页里取数据，和网页自己加载时一样。在 X 的看大图界面只列出帖子本身的图。
+- **Right-click a picture → "Save to Picture Library ▸ category"** (the first nine categories), or "Save to Downloads only". The toolbar icon shows ✓, or ! with the reason. / **对着图片点右键 →“保存到图片库 ▸ 分类”**（前 9 个分类），或“只存到‘下载’”。工具栏图标显示 ✓，失败显示 ! 和原因。
+- **Without the helper, pictures go to Downloads**: `Downloads/Image Organizer/<page title>/`, where they show up in "To Sort". The popup always offers "Save to Downloads". / **没装本机助手时存到“下载”**：`下载/图片整理/<网页标题>/`，在“待整理”里能看到。小窗口随时可以“存到下载”。
+- New permissions: `contextMenus`, `downloads` (Chrome shows "Manage your downloads"), `activeTab`, `scripting`. No access to all websites is requested. / 新权限：`contextMenus`、`downloads`（Chrome 显示“管理您的下载内容”）、`activeTab`、`scripting`。不申请读取所有网站。
 - Gallery: "Select All" next to the view title; "Deselect All" when everything is selected; "Select" / "Deselect" beside each date section. / 图库：视图标题旁有“全选”；全选后可“取消全选”；每个日期分段旁有“选择 / 取消选择”。
 - The gallery reloads the library when it comes back into view, and shows the extension's version in the sidebar. / 图库回到前台时重新读取图片库，侧边栏显示插件版本号。
 - Helper 2.4.0: new `save` request (writes picture bytes into a category, with the same checks, tag, comment and index as filing). / 本机助手 2.4.0：新增 `save` 请求（把图片数据写进分类，校验、标签、注释、索引和归类一样）。

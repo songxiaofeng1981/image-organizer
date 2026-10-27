@@ -59,12 +59,45 @@
     }
     return manifest;
   };
+  // Background-only APIs record what they are asked to do in window.__dev, so dev/background.html can check
+  // the right-click menu, downloads and the toolbar badge. / 后台专用接口把调用记在 window.__dev 里，供检查。
+  const dev = (window.__dev = { menus: [], downloads: [], badges: [], listeners: { installed: [], clicked: [] } });
+  const event = list => ({ addListener: f => list.push(f) });
+  const contextMenus = {
+    create: item => dev.menus.push(item),
+    removeAll: async () => (dev.menus.length = 0),
+    onClicked: event(dev.listeners.clicked),
+  };
+  const downloads = {
+    async download(options) {
+      dev.downloads.push({ filename: options.filename, url: options.url.slice(0, 40), conflictAction: options.conflictAction });
+      return dev.downloads.length;
+    },
+  };
+  const action = {
+    setBadgeText: o => dev.badges.push(o.text),
+    setBadgeBackgroundColor: () => {},
+    setTitle: o => (dev.title = o.title),
+  };
   window.chrome = {
     tabs,
     scripting,
-    runtime: { lastError: null, connectNative, getURL: p => `/${p}`, getContexts: async () => [], getManifest },
-    i18n: { getUILanguage: () => navigator.language },
+    contextMenus,
+    downloads,
+    action,
+    runtime: {
+      lastError: null,
+      connectNative,
+      getURL: p => `/${p}`,
+      getContexts: async () => [],
+      getManifest,
+      sendMessage: async () => {},
+      onInstalled: event(dev.listeners.installed),
+      onStartup: event([]),
+    },
+    i18n: { getUILanguage: () => navigator.language, getMessage: key => key },
     storage: {
+      onChanged: event([]),
       local: {
         async get(keys) {
           const all = read();

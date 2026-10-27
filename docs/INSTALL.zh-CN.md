@@ -12,16 +12,16 @@ Microsoft Edge、Brave、Arc、Vivaldi 也可以用，步骤相同。
 ## 第 1 步：下载
 
 1. 打开[最新版本页面](https://github.com/songxiaofeng1981/image-organizer/releases/latest)。
-2. 在 **Assets** 下面点 **`image-organizer-v2.3.0.zip`**（版本号可能更高）。
+2. 在 **Assets** 下面点 **`image-organizer-v2.4.0.zip`**（版本号可能更高）。
    不要点“Source code”，那是源代码，需要开发工具才能用。
-3. 打开“下载”文件夹，双击这个 zip 文件，会出现一个叫 `image-organizer-v2.3.0` 的文件夹。
+3. 打开“下载”文件夹，双击这个 zip 文件，会出现一个叫 `image-organizer-v2.4.0` 的文件夹。
 
 ## 第 2 步：运行安装程序
 
 1. 打开“终端”：按 `⌘ 空格`，输入 `终端`（或 `Terminal`），按回车。
 2. 在终端窗口里输入 `bash`，后面加**一个空格**。先不要按回车。
-3. 把 `image-organizer-v2.3.0` 文件夹里的 **`install.sh`** 拖进终端窗口。
-   这一行会变成类似 `bash /Users/你的用户名/Downloads/image-organizer-v2.3.0/install.sh` 的样子。
+3. 把 `image-organizer-v2.4.0` 文件夹里的 **`install.sh`** 拖进终端窗口。
+   这一行会变成类似 `bash /Users/你的用户名/Downloads/image-organizer-v2.4.0/install.sh` 的样子。
 4. 按回车。
 
 几秒钟后会显示 **“完成！”**，并自动打开 Chrome 的扩展程序页面。
@@ -51,7 +51,7 @@ Microsoft Edge、Brave、Arc、Vivaldi 也可以用，步骤相同。
 
 ## 第 5 步：清理
 
-现在可以删掉 `image-organizer-v2.3.0` 文件夹和 zip 文件了。需要的东西都已经复制到：
+现在可以删掉 `image-organizer-v2.4.0` 文件夹和 zip 文件了。需要的东西都已经复制到：
 
 - `~/Applications/Image Organizer/extension`（插件）
 - `~/Library/Application Support/ImageOrganizer`（本机助手）

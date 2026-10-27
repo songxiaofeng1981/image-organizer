@@ -102,18 +102,19 @@ TEXT = {
         "arch": "Image Organizer architecture",
         "web": "Web page you are viewing",
         "web1": ("Pinterest, X, Xiaohongshu…", "as you see it, logged in"),
-        "find": ("find pictures and", "fetch them in the page"),
+        "find": ("find and fetch", "in the page"),
         "chrome": "Chrome extension · plain HTML/CSS/JS modules, no build step",
-        "popup": ("Toolbar popup", ("popup.html · popup.js", "pick pictures on this page"), ("save into a category",)),
+        "popup": ("Popup · right-click", ("popup.js · background.js", "pick pictures on a page"), ("into a category or Downloads",)),
         "gallery": ("Gallery page", ("gallery.html · main.js", "To Sort · Library · views"), ("file with 1–9, undo",)),
         "storage": ("chrome.storage", ("io:v2", "categories, colors,"), ("groups, preferences",)),
         "nm": "Native Messaging · JSON over stdin/stdout · replies in 512 KB chunks",
         "save": "save",
+        "nohelper": "no helper: Chrome → Downloads",
         "ops": "list · thumb · full · file · unfile · trash · renameFolder",
         "helper": ("Image Organizer Helper", ("Swift app, macOS ImageIO · runs only while the gallery or popup needs it",
                                               "resolve() lets it touch only Downloads and the picture library"),
                    ("settings.json: where the picture library is",)),
-        "rules": ("Ground rules", ("No network requests", "Never deletes: Trash only", "Checked copy across drives",
+        "rules": ("Ground rules", ("Helper never goes online", "Never deletes: Trash only", "Checked copy across drives",
                                    "(size + SHA-256)", "Only what you can see"), ()),
         "downloads": ("~/Downloads", ("the inbox: To Sort",), ("pictures only",)),
         "library": ("Picture library", ("e.g. /Volumes/ssd2/Pictures/", "<category>/ folders"), (".image-organizer.json index",)),
@@ -127,13 +128,14 @@ TEXT = {
         "main": ("main.js", ("gallery wiring: sidebar, toolbar,", "filing, undo, library dialog, keys"),
                  ("uses: library · grid · viewer · store", "images · ui · host · i18n")),
         "popupjs": ("popup.js", ("toolbar popup: list this page's", "pictures, save the chosen ones"),
-                    ("uses: collect · store · host · library · i18n",)),
-        "bg": ("background.js", ("service worker: toolbar click", "when there is no popup"), ("later: the right-click menu",)),
+                    ("uses: collect · saver · store · i18n",)),
+        "bg": ("background.js", ("right-click menu on pictures:", "Save to Picture Library ▸"), ("uses: saver · store · i18n",)),
         "library_m": ("library.js", ("views, smart categories,", "groups, sorting"), ("uses: store · i18n",)),
         "grid": ("grid.js", ("justified rows, sections,", "selection, drag box"), ("uses: images · ui · i18n",)),
         "viewer": ("viewer.js", ("big picture view,", "info panel"), ("uses: images · ui · library",)),
         "collect": ("collect.js", ("runs inside the web page:", "collectImages, fetchImage"), ("no imports",)),
-        "store": ("store.js", ("io:v2 storage, migration,", "category ↔ library folder"), ("uses: i18n",)),
+        "store": ("store.js", ("io:v2 storage, migration,", "category ↔ folder"), ("uses: i18n",)),
+        "saver": ("saver.js", ("save one picture: into a", "category or Downloads"), ("uses: host · collect · store",)),
         "images": ("images.js", ("thumbnail queue", "and cache"), ("uses: host",)),
         "ui": ("ui.js", ("icons, menus, toasts,", "name dialog, color dots"), ("uses: i18n",)),
         "i18n": ("i18n.js", ("every UI string,", "English + Chinese"), ()),
@@ -150,16 +152,17 @@ TEXT = {
         "web1": ("Pinterest、X、小红书……", "登录后你看到的内容"),
         "find": ("在网页里", "找图片、取数据"),
         "chrome": "Chrome 插件 · 纯 HTML/CSS/JS 模块，不需要构建",
-        "popup": ("工具栏小窗口", ("popup.html · popup.js", "挑选本页的图片"), ("存进某个分类",)),
+        "popup": ("小窗口 · 右键菜单", ("popup.js · background.js", "挑选网页上的图片"), ("存进分类或“下载”",)),
         "gallery": ("图库页面", ("gallery.html · main.js", "待整理 · 图片库 · 各种视图"), ("按 1–9 归类，可撤销",)),
         "storage": ("chrome.storage", ("io:v2", "分类、颜色、"), ("组、偏好设置",)),
         "nm": "Native Messaging · 通过标准输入输出传 JSON · 回复按 512 KB 分块",
         "save": "save 存图",
+        "nohelper": "没有助手时由 Chrome 存到“下载”",
         "ops": "list · thumb · full · file · unfile · trash · renameFolder",
         "helper": ("图片整理本机助手", ("Swift 程序，用 macOS ImageIO · 只在图库或小窗口需要时运行",
                                         "resolve() 只允许它碰“下载”和图片库"),
                    ("settings.json：图片库的位置",)),
-        "rules": ("基本原则", ("不发任何网络请求", "从不直接删除：只进废纸篓", "跨硬盘复制要校验",
+        "rules": ("基本原则", ("本机助手从不联网", "从不直接删除：只进废纸篓", "跨硬盘复制要校验",
                                "（大小 + SHA-256）", "只存你看得到的内容"), ()),
         "downloads": ("~/Downloads（下载）", ("收件箱：待整理",), ("只看图片",)),
         "library": ("图片库", ("如 /Volumes/ssd2/图片库/", "<分类>/ 文件夹"), (".image-organizer.json 索引",)),
@@ -172,14 +175,15 @@ TEXT = {
         "l_helper": "本机助手",
         "main": ("main.js", ("图库的连线：侧边栏、工具栏、", "归类、撤销、图片库对话框、快捷键"),
                  ("用到：library · grid · viewer · store", "images · ui · host · i18n")),
-        "popupjs": ("popup.js", ("工具栏小窗口：列出本页图片，", "把选中的存进分类"),
-                    ("用到：collect · store · host · library · i18n",)),
-        "bg": ("background.js", ("后台：没有小窗口时", "处理工具栏点击"), ("之后放右键菜单",)),
+        "popupjs": ("popup.js", ("工具栏小窗口：列出本页图片，", "把选中的存进分类或“下载”"),
+                    ("用到：collect · saver · store · i18n",)),
+        "bg": ("background.js", ("图片右键菜单：", "保存到图片库 ▸ 分类"), ("用到：saver · store · i18n",)),
         "library_m": ("library.js", ("视图、智能分类、", "组、排序"), ("用到：store · i18n",)),
         "grid": ("grid.js", ("等高行网格、日期分段、", "选择、拖框"), ("用到：images · ui · i18n",)),
         "viewer": ("viewer.js", ("看大图、", "信息面板"), ("用到：images · ui · library",)),
         "collect": ("collect.js", ("在网页里运行：", "collectImages、fetchImage"), ("不引用别的模块",)),
-        "store": ("store.js", ("io:v2 存储、旧版迁移、", "分类 ↔ 图片库文件夹"), ("用到：i18n",)),
+        "store": ("store.js", ("io:v2 存储、旧版迁移、", "分类 ↔ 文件夹"), ("用到：i18n",)),
+        "saver": ("saver.js", ("保存一张图：存进", "分类或“下载”"), ("用到：host · collect · store",)),
         "images": ("images.js", ("缩略图队列", "和缓存"), ("用到：host",)),
         "ui": ("ui.js", ("图标、菜单、提示条、", "命名对话框、色点"), ("用到：i18n",)),
         "i18n": ("i18n.js", ("所有界面文字，", "英文 + 中文"), ()),
@@ -218,6 +222,7 @@ def architecture(T, name):
     s.arrow([(447, 184), (447, 218)])
     s.arrow([(447, 246), (447, 300)])
     s.text(455, 278, T["save"], "label")
+    s.text(455, 293, T["nohelper"], "s")
     s.arrow([(650, 184), (650, 218)])
     s.arrow([(650, 246), (650, 300)])
     s.text(658, 278, T["ops"], "label")
@@ -260,9 +265,9 @@ def modules(T, name):
         s.box(x, 248, w, 96, kind, head, lines, small)
     # Shared / 共用
     layer(386, T["l_shared"])
-    for i, key in enumerate(["store", "images", "ui", "i18n"]):
+    for i, key in enumerate(["store", "saver", "images", "ui", "i18n"]):
         head, lines, small = T[key]
-        s.box(30 + i * 230, 398, 210, 96, "box", head, lines, small)
+        s.box(30 + i * 180, 398, 168, 96, "box", head, lines, small)
     # Bridge / 桥
     layer(536, T["l_bridge"])
     head, lines, small = T["host"]
@@ -281,9 +286,10 @@ def modules(T, name):
     s.arrow([(310, 194), (360, 248)])
     s.arrow([(350, 194), (585, 248)])
     s.arrow([(600, 194), (825, 248)])
-    s.arrow([(200, 344), (200, 398)], gray=True)
-    s.arrow([(360, 344), (360, 398)], gray=True)
-    s.arrow([(360, 494), (360, 548)])
+    s.arrow([(114, 344), (114, 398)], gray=True)
+    s.arrow([(430, 344), (430, 398)], gray=True)
+    s.arrow([(474, 494), (474, 548)])
+    s.arrow([(294, 494), (294, 548)])
     s.arrow([(480, 598), (480, 652)])
     s.save(name)
 

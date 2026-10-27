@@ -56,10 +56,10 @@
 <rect class="frame" x="340" y="52" width="600" height="148" rx="14"/>
 <text class="frame-label" x="356" y="72" text-anchor="start">Chrome extension · plain HTML/CSS/JS modules, no build step</text>
 <rect class="accent" x="356" y="84" width="182" height="100" rx="10"/>
-<text class="h" x="370" y="106" text-anchor="start">Toolbar popup</text>
-<text class="t" x="370" y="125" text-anchor="start">popup.html · popup.js</text>
-<text class="t" x="370" y="142" text-anchor="start">pick pictures on this page</text>
-<text class="s" x="370" y="159" text-anchor="start">save into a category</text>
+<text class="h" x="370" y="106" text-anchor="start">Popup · right-click</text>
+<text class="t" x="370" y="125" text-anchor="start">popup.js · background.js</text>
+<text class="t" x="370" y="142" text-anchor="start">pick pictures on a page</text>
+<text class="s" x="370" y="159" text-anchor="start">into a category or Downloads</text>
 <rect class="accent" x="552" y="84" width="196" height="100" rx="10"/>
 <text class="h" x="566" y="106" text-anchor="start">Gallery page</text>
 <text class="t" x="566" y="125" text-anchor="start">gallery.html · main.js</text>
@@ -72,13 +72,14 @@
 <text class="s" x="776" y="159" text-anchor="start">groups, preferences</text>
 <path class="line gray" d="M748,134 L762,134" marker-start="url(#g)" marker-end="url(#g)"/>
 <path class="line" d="M356,134 L240,134" marker-start="url(#a)" marker-end="url(#a)"/>
-<text class="label" x="298" y="158" text-anchor="middle">find pictures and</text>
-<text class="label" x="298" y="173" text-anchor="middle">fetch them in the page</text>
+<text class="label" x="298" y="158" text-anchor="middle">find and fetch</text>
+<text class="label" x="298" y="173" text-anchor="middle">in the page</text>
 <rect class="box" x="340" y="218" width="600" height="28" rx="8"/>
 <text class="s" x="640" y="236" text-anchor="middle">Native Messaging · JSON over stdin/stdout · replies in 512 KB chunks</text>
 <path class="line" d="M447,184 L447,218" marker-end="url(#a)"/>
 <path class="line" d="M447,246 L447,300" marker-end="url(#a)"/>
 <text class="label" x="455" y="278" text-anchor="start">save</text>
+<text class="s" x="455" y="293" text-anchor="start">no helper: Chrome → Downloads</text>
 <path class="line" d="M650,184 L650,218" marker-end="url(#a)"/>
 <path class="line" d="M650,246 L650,300" marker-end="url(#a)"/>
 <text class="label" x="658" y="278" text-anchor="start">list · thumb · full · file · unfile · trash · renameFolder</text>
@@ -89,7 +90,7 @@
 <text class="s" x="354" y="375" text-anchor="start">settings.json: where the picture library is</text>
 <rect class="box" x="20" y="300" width="280" height="140" rx="10"/>
 <text class="h" x="34" y="322" text-anchor="start">Ground rules</text>
-<text class="t" x="34" y="341" text-anchor="start">No network requests</text>
+<text class="t" x="34" y="341" text-anchor="start">Helper never goes online</text>
 <text class="t" x="34" y="358" text-anchor="start">Never deletes: Trash only</text>
 <text class="t" x="34" y="375" text-anchor="start">Checked copy across drives</text>
 <text class="t" x="34" y="392" text-anchor="start">(size + SHA-256)</text>

@@ -27,3 +27,6 @@ body.popup { width: 420px; min-height: 180px; overflow: hidden; background: var(
 .p-foot .select { flex: 1; min-width: 0; }
 .p-note .p-view { display: inline-flex; margin-left: 6px; vertical-align: baseline; }
 .p-note { word-break: break-all; }
+/* Without the helper (or library) only Downloads: no category menu. / 没有本机助手（或图片库）时只能存到“下载”，不显示分类。 */
+.downloads-only #pCategory, .downloads-only #pSave { display: none; }
+.downloads-only #pDownloads { flex: 1; }

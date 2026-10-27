@@ -2,14 +2,14 @@
 
 **English** | [中文](README.zh-CN.md)
 
-A Chrome extension for the pictures piling up in your Mac's **Downloads** folder: see them all in one place, file them with a single key into your own picture library (for example on an external drive), and move the ones you don't need to the Trash. Downloads gets emptier as you go.
+A Chrome extension for the pictures piling up in your Mac's **Downloads** folder: see them all in one place, file them with a single key into your own picture library (for example on an external drive), and move the ones you don't need to the Trash. Downloads gets emptier as you go. Pictures on web pages can go straight into the library too: pick them in the toolbar popup, or right-click one.
 
 It looks and feels like Apple Photos, and it runs entirely on your Mac.
 
 ![Gallery](docs/images/gallery.png)
 <sub>Screenshots use generated sample pictures.</sub>
 
-> **Status:** v2.3. macOS only. Works in Google Chrome, and in Edge, Brave, Arc and Vivaldi.
+> **Status:** v2.4. macOS only. Works in Google Chrome, and in Edge, Brave, Arc and Vivaldi.
 > The interface is in English or Chinese, following your browser's language.
 
 ---
@@ -22,6 +22,7 @@ Neither helps with the actual job: **go through them quickly, keep what matters,
 
 ## What it does
 
+- **Save pictures from web pages straight into a category.** Click the toolbar icon on any page: it lists the page's pictures at the largest size the page offers (small icons hidden), you pick some and save them into a category, named after the page in page order. Or right-click a picture → **Save to Picture Library ▸ category**. Each picture is fetched inside the page, the way the page itself loads it. Without the helper, pictures go to `Downloads/Image Organizer/<page title>/`.
 - **Downloads becomes an inbox.** Filing a picture **moves it out of Downloads** into a picture library folder you choose (an external drive works well), one folder per category. The original is removed only after the copy has been checked byte for byte; a picture already in the library is not stored twice. Each filed picture gets a Finder tag (its category) and a Finder comment saying where it came from.
 - **Shows every picture in Downloads**, sub-folders included, newest first, in date sections (Today, Yesterday, This Week, by month). Thumbnails keep each picture's shape.
 - **Sorting at the speed of a keypress.** Open a picture, press `1`–`9` to move it into a category of your picture library, and the next one appears. `⌫` moves it to the Trash. `⌘Z` undoes anything.
@@ -63,12 +64,16 @@ Upgrading from 1.x? Just run the new installer and click reload on the existing 
 | Get rid of it | Press `⌫`. It goes to the Trash after a few seconds; `⌘Z` or **Undo** brings it back. |
 | Work on many at once | Click the circle on a picture, then ⌘-click, Shift-click, or drag a box. Use the bar at the top, a number key, or drag onto a category. |
 | Go through new downloads | Open **To Sort → Downloads**, open the first picture, and keep pressing number keys. It tells you how many are left. |
+| Save pictures from a web page | Click the toolbar icon, pick pictures, choose a category, **Save to Category** (or **Save to Downloads**). |
+| Save one picture you are looking at | Right-click it → **Save to Picture Library ▸** a category, or **Save to Downloads only**. The toolbar icon shows ✓ (or ! with the reason). |
+| Select a whole day or month | Click **Select** next to the date. **Select All** is next to the view title; click again to deselect. |
 | Change where the library is | Click **⋯** next to "Picture Library" in the sidebar. |
 | See all shortcuts | Press `?`. |
 
 ## Privacy and safety
 
-- **Nothing leaves your Mac.** Neither the extension nor the helper makes network requests. The "Downloaded from" information is read from your own files; only website names are used.
+- **Only the page you ask for.** The extension reads a web page only when you click its icon or its right-click menu there (Chrome's `activeTab`), and asks for no access to all websites. New in 2.4: permission to manage downloads (for **Save to Downloads**).
+- **Nothing leaves your Mac.** The helper never goes online. The extension only fetches the pictures you pick on a web page, inside that page, and sends nothing anywhere. The "Downloaded from" information is read from your own files; only website names are used.
 - **Only Downloads and your picture library, only pictures.** The helper refuses any path outside those two folders, hidden files, symbolic links and non-image files.
 - **Never deletes.** "Move to Trash" uses the macOS Trash, so you can always put a file back from Finder. Moving to another drive removes the original only after an identical copy is in place.
 - **Never changes your pictures' content.** Pixels and EXIF stay as they are. Filing adds a Finder tag and comment (file attributes, visible in Finder) and keeps a hidden `.image-organizer.json` index in the library folder. Category colors and groups are stored by Chrome for this extension.
