@@ -3,3 +3,4 @@ helper/build/
 dist/
 __pycache__/
 *.pyc
+.claude/

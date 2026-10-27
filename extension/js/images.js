@@ -105,6 +105,16 @@ export function forget(paths) {
   }
 }
 
+/** Keeps the cached pictures of files that moved: [{ from, to }]. / 文件移动后保留已缓存的图片。 */
+export function rename(pairs) {
+  for (const { from, to } of pairs) {
+    if (thumbs.has(from)) thumbs.set(to, thumbs.get(from));
+    thumbs.delete(from);
+    if (fulls.has(from)) fulls.set(to, fulls.get(from));
+    fulls.delete(from);
+  }
+}
+
 export function forgetAll() {
   forget([...new Set([...thumbs.keys(), ...fulls.keys()])]);
 }

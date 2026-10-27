@@ -5,6 +5,7 @@ Usage / 用法:
     bash helper/build.sh
     python3 dev/make_samples.py /tmp/io-samples
     python3 dev/serve.py /tmp/io-samples          # then open http://127.0.0.1:8770/gallery.html
+                                                  # choose e.g. /tmp/io-samples-library as the picture library
 
 The page is served from extension/ with dev/chrome-shim.js injected. The shim stands in for
 chrome.runtime.connectNative (forwarded to the helper over HTTP) and chrome.storage (kept in
@@ -29,8 +30,8 @@ CSP = json.load(open(os.path.join(EXT, "manifest.json")))["content_security_poli
 
 
 class Bridge:
-    def __init__(self, root):
-        self.p = subprocess.Popen([BIN, ORIGIN, "--root", root], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+    def __init__(self, root, config):
+        self.p = subprocess.Popen([BIN, ORIGIN, "--root", root, "--config", config], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
         self.lock = threading.Lock()
         self.waiting = {}
         threading.Thread(target=self.read, daemon=True).start()
@@ -112,8 +113,11 @@ def main():
     root = os.path.abspath(sys.argv[1] if len(sys.argv) > 1 else "/tmp/io-samples")
     port = int(os.environ.get("PORT", "8770"))
     server = ThreadingHTTPServer(("127.0.0.1", port), Handler)
-    server.bridge = Bridge(root)
-    print(f"Serving {root}\nOpen http://127.0.0.1:{port}/gallery.html  (add ?lang=zh or ?lang=en)")
+    # The picture library setting is kept next to the sample folder, never in your real settings.
+    # 图片库设置保存在示例文件夹旁边，不会改到你真正的设置。
+    config = root.rstrip("/") + "-config"
+    server.bridge = Bridge(root, config)
+    print(f"Serving {root} (settings in {config})\nOpen http://127.0.0.1:{port}/gallery.html  (add ?lang=zh or ?lang=en)")
     server.serve_forever()
 
 

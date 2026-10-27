@@ -1,6 +1,8 @@
-// What the user decides is kept in chrome.storage.local, never in the Downloads folder:
-// categories, which picture belongs to which category, manual groups, and view preferences.
-// 用户的整理结果保存在 chrome.storage.local，不写进“下载”文件夹：分类、图片归属、手动组、显示偏好。
+// What the user decides is kept in chrome.storage.local: categories (name, color, order), manual groups
+// and view preferences. A picture in the picture library belongs to the category named like its folder;
+// `assign` only holds pictures still in Downloads that were categorized before version 2.3.
+// 用户的整理结果保存在 chrome.storage.local：分类（名称、颜色、顺序）、手动组、显示偏好。
+// 图片库里的图属于和它所在文件夹同名的分类；`assign` 只保存 2.3 之前归过类、但还在“下载”里的图。
 
 import { t } from './i18n.js';
 
@@ -80,7 +82,27 @@ export function snapshot() {
   };
 }
 
-export const categoryOf = path => data.categories.find(c => c.id === data.assign[path]) || null;
+export const LIB = 'lib:';
+export const inLibrary = path => path.startsWith(LIB);
+
+/** The library folder for a category name: one plain folder name. / 分类对应的图片库文件夹名。 */
+export const folderOf = name => name.trim().replace(/[/:\\]/g, '-').replace(/^\.+/, '') || '_';
+
+/** First folder inside the library, or '' for a picture outside it (or directly in it). */
+export const libraryFolder = path => (inLibrary(path) && path.includes('/') ? path.slice(LIB.length).split('/')[0] : '');
+
+// Finder tag colors: 0 none, 1 gray, 2 green, 3 purple, 4 blue, 5 yellow, 6 red, 7 orange.
+// 访达标签颜色编号。
+const FINDER = { '#FF3B30': 6, '#FF9500': 7, '#FFCC00': 5, '#34C759': 2, '#00C7BE': 4, '#007AFF': 4, '#AF52DE': 3, '#FF2D55': 6 };
+export const finderTag = c => ({ name: c.name, color: FINDER[c.color] ?? 0 });
+
+export function categoryOf(path) {
+  if (inLibrary(path)) {
+    const folder = libraryFolder(path);
+    return folder ? data.categories.find(c => folderOf(c.name) === folder) || null : null;
+  }
+  return data.categories.find(c => c.id === data.assign[path]) || null;
+}
 
 export function assign(paths, categoryId) {
   for (const p of paths) {
@@ -91,6 +113,9 @@ export function assign(paths, categoryId) {
 }
 
 export function addCategory(name) {
+  // One category per library folder: the same name gives back the existing one. / 一个图片库文件夹只对应一个分类：同名时返回已有的。
+  const same = data.categories.find(c => folderOf(c.name) === folderOf(name));
+  if (same) return same;
   const used = new Set(data.categories.map(c => c.color));
   const color = COLORS.find(c => !used.has(c)) || COLORS[data.categories.length % COLORS.length];
   const category = { id: newId(), name, color };
@@ -137,6 +162,14 @@ export function renameGroup(id, name) {
 
 export function removeGroup(id) {
   data.groups = data.groups.filter(g => g.id !== id);
+  save();
+}
+
+/** Pictures that moved (into or inside the library): groups follow them, old Downloads categories are dropped. */
+export function moved(pairs) {
+  const to = new Map(pairs.map(m => [m.from, m.to]));
+  for (const p of to.keys()) delete data.assign[p];
+  data.groups = data.groups.map(g => ({ ...g, paths: g.paths.map(p => to.get(p) || p) }));
   save();
 }
 

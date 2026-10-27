@@ -1,11 +1,11 @@
 // Starts the gallery and connects the pieces: sidebar, toolbar, grid, viewer, and the
-// actions that change things (file into a category, make a group, move to the Trash).
-// 启动图库，把侧边栏、工具栏、网格、大图查看和各种操作（归类、建组、移到废纸篓）连在一起。
+// actions that change things (move into a category of the picture library, make a group, move to the Trash).
+// 启动图库，把侧边栏、工具栏、网格、大图查看和各种操作（移到图片库的分类、建组、移到废纸篓）连在一起。
 
 import { host, HostError, MIN_HELPER_VERSION, versionAtLeast } from './host.js';
 import * as store from './store.js';
-import { data } from './store.js';
-import { SMART, TIME_FILTERS, facets, siteName, prepare, compute, viewCount } from './library.js';
+import { data, inLibrary, folderOf, finderTag, libraryFolder, LIB } from './store.js';
+import { SMART, TIME_FILTERS, facets, siteName, prepare, compute, viewCount, formatDate } from './library.js';
 import * as images from './images.js';
 import { Grid } from './grid.js';
 import { Viewer } from './viewer.js';
@@ -17,11 +17,13 @@ const TRASH_DELAY = 6000;
 
 const state = {
   all: [],
-  view: 'all',
+  view: 'inbox',
   search: '',
   result: { items: [], tiles: [], sections: [], groups: new Map() },
   hidden: new Set(), // waiting to go to the Trash / 等待移入废纸篓
-  lastView: 'all',
+  lastView: 'inbox',
+  library: { path: '', available: false, suggestions: [] }, // where the picture library is / 图片库位置
+  busy: false, // a move is running; key presses wait for it / 正在移动文件
 };
 
 const grid = new Grid($('#scroller'), {
@@ -40,7 +42,7 @@ const viewer = new Viewer($('#viewer'), {
   },
   trash: path => trash([path]),
   reveal: path => host.reveal(path).catch(showError),
-  remaining: () => (state.view === 'uncategorized' ? state.result.items.length : null),
+  remaining: () => (state.view === 'inbox' ? state.result.items.length : null),
   infoOpen: () => data.prefs.infoOpen,
   setInfoOpen: open => store.setPref('infoOpen', open),
   closed: path => {
@@ -61,14 +63,16 @@ async function start() {
   await scan();
 }
 
-async function scan() {
-  showStatus('loading');
+async function scan({ keepImages = false } = {}) {
+  if (!keepImages) showStatus('loading');
   try {
     const hello = await host.hello();
     if (!versionAtLeast(hello.version, MIN_HELPER_VERSION)) return showStatus('outdated');
+    state.library = libraryState(await host.config(t('library.folderName')));
     const rows = await host.list();
-    images.forgetAll();
+    if (!keepImages) images.forgetAll();
     state.all = prepare(rows);
+    adoptFolders();
     showStatus(null);
     refresh();
   } catch (e) {
@@ -106,7 +110,21 @@ function showStatus(kind, detail = '') {
       </div>
       ${detail ? `<details><summary>${escapeHtml(t('status.details'))}</summary><code>${escapeHtml(detail)}</code></details>` : ''}
     </div>`;
-  $('#retry').onclick = scan;
+  $('#retry').onclick = () => scan();
+}
+
+const libraryState = r => ({ path: r.library || '', available: !!r.available, suggestions: r.suggestions || [] });
+
+/** A folder in the library that no category is named after becomes a category (e.g. made in Finder). */
+function adoptFolders() {
+  const known = new Set(data.categories.map(c => folderOf(c.name)));
+  for (const x of state.all) {
+    const folder = libraryFolder(x.path);
+    if (folder && !known.has(folder)) {
+      known.add(folder);
+      store.addCategory(folder);
+    }
+  }
 }
 
 // ---------- rendering / 显示 ----------
@@ -135,7 +153,7 @@ function refresh({ keepScroll = true } = {}) {
 
 function viewTitle(view) {
   if (view === 'all') return t('view.all');
-  if (view === 'uncategorized') return t('uncategorized');
+  if (view === 'inbox') return t('view.inbox');
   if (view.startsWith('f:')) return t(`filter.${view.slice(2)}`);
   if (view.startsWith('device:')) return view.slice(7);
   if (view.startsWith('site:')) return siteName(view.slice(5));
@@ -175,6 +193,13 @@ function renderHeader() {
     const c = data.categories.find(x => x.id === v.slice(4));
     if (c) add(t('category.edit'), e => menu(categoryEditItems(c), e.currentTarget));
   }
+  // Pictures categorized before 2.3 are still in Downloads: offer to move them. / 2.3 之前归类的图还在“下载”里：提供一键移动。
+  const pending = pendingPaths(v);
+  if (pending.length && (v === 'inbox' || v.startsWith('cat:'))) {
+    add(t('pending.move', pending.length), () => movePending(pending));
+    actions.lastChild.classList.add('primary');
+    actions.lastChild.title = t('pending.hint', pending.length);
+  }
   document.title = `${viewTitle(v)} · ${t('appName')}`;
 }
 
@@ -183,9 +208,16 @@ function renderEmpty() {
   const empty = !state.result.items.length && !document.body.classList.contains('has-status');
   el.hidden = !empty;
   if (!empty) return;
-  const searching = state.search;
-  const key = searching ? 'empty.search' : state.view === 'uncategorized' ? 'empty.done' : state.all.length ? 'empty.view' : 'empty.none';
-  el.innerHTML = `<div class="empty-icon">${icon(key === 'empty.done' ? 'check' : 'photos')}</div><h2>${escapeHtml(t(`${key}.title`))}</h2><p>${escapeHtml(t(`${key}.body`))}</p>`;
+  const v = state.view;
+  const libraryView = v === 'all' || v.startsWith('cat:');
+  let key = state.all.length ? 'empty.view' : 'empty.none';
+  if (state.search) key = 'empty.search';
+  else if (v === 'inbox') key = state.all.length ? 'empty.done' : 'empty.none';
+  else if (libraryView && !state.library.path) key = 'empty.noLibrary';
+  else if (libraryView && !state.library.available) key = 'empty.offline';
+  const setup = key === 'empty.noLibrary' ? `<button type="button" class="button primary" id="emptySetup">${escapeHtml(t('library.setUp'))}</button>` : '';
+  el.innerHTML = `<div class="empty-icon">${icon(key === 'empty.done' ? 'check' : key === 'empty.noLibrary' || key === 'empty.offline' ? 'disk' : 'photos')}</div><h2>${escapeHtml(t(`${key}.title`))}</h2><p>${escapeHtml(t(`${key}.body`))}</p>${setup}`;
+  if (setup) $('#emptySetup').onclick = () => openLibraryDialog();
 }
 
 function sidebarItem(view, label, iconHtml, count, extra = '') {
@@ -201,7 +233,7 @@ const expanded = new Set(); // sections showing all rows / 展开了全部行的
  * Empty rows are left out (unless keepEmpty), except the one being viewed. Long lists show the first few.
  * 侧边栏分区，点标题可折叠。数量为 0 的行默认不显示（当前正在看的除外）；行太多时只显示前几行。
  */
-function sideSection(id, title, rows, { extraHeading = '', keepEmpty = false, limit = SHOW_FIRST } = {}) {
+function sideSection(id, title, rows, { extraHeading = '', keepEmpty = false, limit = SHOW_FIRST, note = '' } = {}) {
   if (!keepEmpty) rows = rows.filter(r => r[2] > 0 || state.view === r[0]);
   if (!rows.length && !extraHeading) return '';
   const folded = data.prefs.collapsed.includes(id);
@@ -213,6 +245,7 @@ function sideSection(id, title, rows, { extraHeading = '', keepEmpty = false, li
     if (rows.length > limit + 1) {
       out.push(`<button type="button" class="side-more" data-more="${id}">${escapeHtml(all ? t('side.showLess') : t('side.showAll', rows.length))}</button>`);
     }
+    out.push(note);
   }
   out.push('</div>');
   return out.join('');
@@ -223,12 +256,10 @@ function renderSidebar() {
   const count = view => viewCount(live, view);
   const { devices, sites, folders } = facets(live);
   const html = [];
-  html.push(sideSection('library', t('side.library'), [
-    ['all', t('view.all'), count('all'), icon('photos')],
-    ['uncategorized', t('uncategorized'), count('uncategorized'), icon('tray')],
-  ], { keepEmpty: true, limit: Infinity }));
+  html.push(sideSection('inbox', t('side.inbox'), [['inbox', t('downloads'), count('inbox'), icon('tray')]], { keepEmpty: true, limit: Infinity }));
 
-  const addButton = `<button type="button" class="side-add" id="addCategory" title="${escapeHtml(t('category.new'))}" aria-label="${escapeHtml(t('category.new'))}">${icon('plus')}</button>`;
+  const button = (id, iconName, label) => `<button type="button" class="side-add" id="${id}" title="${escapeHtml(label)}" aria-label="${escapeHtml(label)}">${icon(iconName)}</button>`;
+  const heading = button('librarySettings', 'more', t('library.settings')) + button('addCategory', 'plus', t('category.new'));
   // Number keys file into categories; the key shows next to each category while pictures are selected.
   // 数字键对应分类；选中图片时在分类旁显示对应的数字。
   const cats = data.categories.map((c, i) => [
@@ -238,7 +269,14 @@ function renderSidebar() {
     `<span class="dot" data-color="${escapeHtml(c.color)}"></span>`,
     i < 9 ? `<kbd class="side-key">${i + 1}</kbd>` : '',
   ]);
-  html.push(sideSection('categories', t('side.categories'), cats, { extraHeading: addButton, keepEmpty: true, limit: Infinity }));
+  // The library: all its pictures, then one row per category (= folder). / 图片库：全部图片，然后每个分类（即文件夹）一行。
+  const lib = state.library;
+  const note = !lib.path
+    ? `<button type="button" class="side-more side-setup" id="sideSetup">${escapeHtml(t('library.setUp'))}</button>`
+    : !lib.available
+      ? `<div class="side-note" title="${escapeHtml(lib.path)}">${icon('disk')}<span>${escapeHtml(t('library.offline'))} · ${escapeHtml(lib.path)}</span></div>`
+      : '';
+  html.push(sideSection('library', t('side.library'), [['all', t('view.all'), count('all'), icon('photos')], ...cats], { extraHeading: heading, keepEmpty: true, limit: Infinity, note }));
 
   html.push(sideSection('smart', t('side.smart'), SMART.map(([id, iconName]) => [`f:${id}`, t(`filter.${id}`), count(`f:${id}`), icon(iconName)]), { limit: Infinity }));
   html.push(sideSection('devices', t('side.devices'), devices.map(([d, n]) => [`device:${d}`, d, n])));
@@ -309,16 +347,210 @@ function afterChange(paths, { advance = false } = {}) {
   if (viewer.isOpen) viewer.update(state.result.items, { path: paths[0], advance });
 }
 
-function assign(paths, categoryId, { advance = false } = {}) {
-  if (!paths.length) return;
-  const restore = store.snapshot();
-  store.assign(paths, categoryId);
+// ---------- moving into the picture library / 移到图片库 ----------
+
+const byPath = path => state.all.find(x => x.path === path);
+
+/** The Finder comment written on a filed picture. / 写在归档图片上的访达注释。 */
+function commentFor(x) {
+  if (!x) return '';
+  const line = (k, v) => t('comment.line', t(k), v);
+  return [
+    ...(x.from.length ? [line('comment.source', x.from.join(', '))] : []),
+    line('comment.name', x.name),
+    line('comment.downloaded', formatDate(x.addedTime)),
+    line('comment.filed', formatDate(Date.now())),
+  ].join('\n');
+}
+
+/** Same picture at its new path. / 同一张图换成新的路径。 */
+function relocate(x, to) {
+  const rel = inLibrary(to) ? to.slice(LIB.length) : to;
+  const slash = rel.lastIndexOf('/');
+  const y = { ...x, path: to, name: rel.slice(slash + 1), folder: slash >= 0 ? rel.slice(0, slash) : '', library: inLibrary(to) || undefined };
+  if (!y.library) delete y.filed;
+  else if (!inLibrary(x.path)) {
+    y.filed = new Date().toISOString();
+    y.originalName = x.name;
+  }
+  return y;
+}
+
+/** Takes the helper's answer [{ from, to, duplicate? }] into the page. / 把助手返回的移动结果应用到页面。 */
+function applyMoves(moved) {
+  const real = moved.filter(m => !m.duplicate && m.from !== m.to);
+  const gone = new Set(moved.filter(m => m.duplicate).map(m => m.from));
+  const to = new Map(real.map(m => [m.from, m.to]));
+  state.all = state.all.filter(x => !gone.has(x.path)).map(x => (to.has(x.path) ? relocate(x, to.get(x.path)) : x));
+  // Copies point at the copy in the library as their original. / 副本以图片库里的那份为原件。
+  const at = new Map(state.all.map(x => [x.path, x]));
+  for (const x of state.all) {
+    if (to.has(x.duplicateOf)) x.duplicateOf = to.get(x.duplicateOf);
+    const original = at.get(x.duplicateOf);
+    if (original && inLibrary(original.path) === false && inLibrary(x.path)) {
+      original.duplicateOf = x.path;
+      delete x.duplicateOf;
+    }
+  }
+  images.rename(real);
+  images.forget([...gone]);
+  store.moved(real);
+  store.forget([...gone]);
+}
+
+/** True when filing can go ahead; asks for the library's place the first time. / 可以归类时返回 true；第一次会先问图片库放在哪里。 */
+async function libraryReady() {
+  if (!state.library.path && !(await openLibraryDialog())) return false;
+  if (!state.library.available) {
+    toast(t('toast.libraryOffline', state.library.path), { error: true });
+    return false;
+  }
+  return true;
+}
+
+/** Moves pictures to `folder` of the library (or back to Downloads when folder is null). */
+function moveRequest(paths, category, folder = category ? folderOf(category.name) : null) {
+  if (!folder) return host.unfile(paths.map(p => ({ path: p, removeTag: store.categoryOf(p)?.name })));
+  const items = paths.map(p => (inLibrary(p) ? { path: p, removeTag: store.categoryOf(p)?.name } : { path: p, comment: commentFor(byPath(p)) }));
+  return host.file(items, folder, category ? finderTag(category) : null);
+}
+
+/**
+ * Number keys, menus and drag & drop end here. A category moves the pictures into its library folder;
+ * no category (0) moves library pictures back to Downloads. Undo puts every picture back where it was.
+ * 数字键、菜单和拖放最终都走这里。选分类：移到它在图片库里的文件夹；不选分类（0）：把图片库里的图移回“下载”。撤销会把每张图放回原处。
+ */
+async function assign(paths, categoryId, { advance = false } = {}) {
+  if (!paths.length || state.busy) return;
+  const category = categoryId ? data.categories.find(c => c.id === categoryId) : null;
+  const toMove = category ? paths.filter(p => !inLibrary(p) || store.categoryOf(p)?.id !== category.id) : paths.filter(inLibrary);
+  // Older Downloads pictures with a category just lose it on 0. / 0 键：以前归类、还在“下载”里的图只去掉分类。
+  const unassign = category ? [] : paths.filter(p => !inLibrary(p) && data.assign[p]);
+  if (!toMove.length && !unassign.length) return;
+  if (toMove.length && !(await libraryReady())) return;
+  state.busy = true;
   grid.clearSelection();
-  afterChange(paths, { advance });
-  const name = categoryId ? data.categories.find(c => c.id === categoryId)?.name : t('uncategorized');
-  remember(t('toast.assigned', paths.length, name), () => {
+  const restore = store.snapshot();
+  const before = new Map(toMove.map(p => [p, store.categoryOf(p)]));
+  let moved = [];
+  try {
+    if (unassign.length) store.assign(unassign, null);
+    if (toMove.length) {
+      const r = await moveRequest(toMove, category);
+      moved = r.moved || [];
+      applyMoves(moved);
+      if (r.failed?.length) toast(t('toast.fileFailed', r.failed.length), { error: true });
+    }
+  } catch (e) {
+    showError(e);
+  } finally {
+    state.busy = false;
+  }
+  const done = moved.length + unassign.length;
+  const first = moved[0]?.to || unassign[0] || paths[0];
+  afterChange([first], { advance });
+  if (!done) return;
+  const dupes = moved.filter(m => m.duplicate).length;
+  const label = category ? t('toast.filed', done, category.name) : moved.length ? t('toast.movedBack', done) : t('toast.assigned', done, t('uncategorized'));
+  remember(dupes === done ? t('toast.duplicates', dupes) : dupes ? `${label} · ${t('toast.duplicates', dupes)}` : label, async () => {
     restore();
-    afterChange(paths);
+    const back = moved.filter(m => !m.duplicate && m.from !== m.to);
+    if (dupes) toast(t('toast.undoDuplicate'));
+    try {
+      // Back to Downloads, or back into the folder each one came from. / 放回“下载”，或放回各自原来的文件夹。
+      const home = back.filter(m => !inLibrary(m.from));
+      if (home.length) applyMoves((await host.unfile(home.map(m => ({ path: m.to, removeTag: category?.name })))).moved || []);
+      const byFolder = new Map();
+      for (const m of back.filter(m => inLibrary(m.from) && libraryFolder(m.from))) {
+        const f = libraryFolder(m.from);
+        byFolder.set(f, [...(byFolder.get(f) || []), m.to]);
+      }
+      for (const [folder, list] of byFolder) {
+        const old = before.get(back.find(m => libraryFolder(m.from) === folder).from);
+        applyMoves((await moveRequest(list, old, folder)).moved || []);
+      }
+    } catch (e) {
+      showError(e);
+    }
+    afterChange(back.map(m => m.from));
+  });
+}
+
+/** Downloads pictures that have a category from before 2.3 (in this category's view: only its own). */
+function pendingPaths(view) {
+  const id = view.startsWith('cat:') ? view.slice(4) : null;
+  return state.all.filter(x => !inLibrary(x.path) && !state.hidden.has(x.path) && store.categoryOf(x.path) && (!id || data.assign[x.path] === id)).map(x => x.path);
+}
+
+async function movePending(paths) {
+  const byCategory = new Map();
+  for (const p of paths) byCategory.set(data.assign[p], [...(byCategory.get(data.assign[p]) || []), p]);
+  for (const [id, list] of byCategory) await assign(list, id);
+}
+
+// ---------- picture library settings / 图片库设置 ----------
+
+function openLibraryDialog() {
+  const d = $('#libraryDialog');
+  const input = $('#libraryPath');
+  const error = $('#libraryError');
+  const list = $('#librarySuggestions');
+  const { path, suggestions = [] } = state.library;
+  input.value = path || suggestions[0] || '';
+  error.hidden = true;
+  $('#libraryCurrent').textContent = path ? t('library.current', path) : '';
+  const mark = () => list.querySelectorAll('button').forEach(b => b.classList.toggle('active', b.dataset.path === input.value.trim()));
+  list.replaceChildren(
+    ...suggestions.map(s => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'library-suggestion';
+      b.dataset.path = s;
+      b.innerHTML = `${icon(s.startsWith('/Volumes/') ? 'disk' : 'folder')}<span></span>`;
+      b.lastChild.textContent = s;
+      b.onclick = () => {
+        input.value = s;
+        mark();
+      };
+      return b;
+    }),
+  );
+  mark();
+  input.oninput = mark;
+  input.onkeydown = e => {
+    if (e.key !== 'Enter' || e.isComposing) return;
+    e.preventDefault();
+    d.querySelector('form').requestSubmit(d.querySelector('button[value="ok"]'));
+  };
+  $('#libraryChoose').onclick = async () => {
+    try {
+      const r = await host.chooseFolder(t('library.prompt'));
+      if (r.path) input.value = r.path;
+      mark();
+    } catch (e) {
+      showError(e);
+    }
+  };
+  return new Promise(resolve => {
+    const form = d.querySelector('form');
+    form.onsubmit = async e => {
+      e.preventDefault();
+      if (e.submitter?.value === 'cancel') return d.close();
+      try {
+        state.library = libraryState(await host.setLibrary(input.value, t('library.folderName')));
+        d.close('ok');
+        toast(t('toast.librarySet', state.library.path));
+        // The new place may already hold a library: read it before filing anything. / 新位置可能已有图片库：先读取再归类。
+        await scan({ keepImages: true });
+        resolve(true);
+      } catch (err) {
+        error.textContent = /bad_library/.test(err.message) ? t('library.bad') : t('toast.error', err.message);
+        error.hidden = false;
+      }
+    };
+    d.onclose = () => d.returnValue !== 'ok' && resolve(false);
+    d.returnValue = '';
+    d.showModal();
   });
 }
 
@@ -333,7 +565,7 @@ function categoryItems(paths, opts = {}) {
       shortcut: i < 9 ? String(i + 1) : '',
       action: () => assign(paths, c.id, opts),
     })),
-    { label: t('uncategorized'), icon: 'tray', checked: one === '', shortcut: '0', action: () => assign(paths, null, opts) },
+    { label: paths.some(inLibrary) ? t('moveBack') : t('uncategorized'), icon: 'tray', checked: one === '', shortcut: '0', action: () => assign(paths, null, opts) },
     { separator: true },
     {
       label: t('category.newEllipsis'),
@@ -415,18 +647,30 @@ function categoryEditItems(c) {
       icon: 'tag',
       action: async () => {
         const name = await askName({ title: t('category.rename'), value: c.name, confirm: t('save') });
-        if (name) store.renameCategory(c.id, name);
+        if (!name || name === c.name) return;
+        if (!(await renameFolder(c, { ...c, name }))) return;
+        store.renameCategory(c.id, name);
         refresh();
       },
     },
     { heading: t('category.color') },
-    ...store.COLORS.map(color => ({ label: '', color, checked: c.color === color, action: () => (store.recolorCategory(c.id, color), refresh()) })),
+    ...store.COLORS.map(color => ({
+      label: '',
+      color,
+      checked: c.color === color,
+      action: async () => {
+        if (!(await renameFolder(c, { ...c, color }))) return;
+        store.recolorCategory(c.id, color);
+        refresh();
+      },
+    })),
     { separator: true },
     {
       label: t('category.delete'),
       icon: 'trash',
       danger: true,
       action: () => {
+        if (state.all.some(x => inLibrary(x.path) && store.categoryOf(x.path)?.id === c.id)) return toast(t('toast.categoryNotEmpty', c.name), { error: true });
         const restore = store.snapshot();
         store.removeCategory(c.id);
         if (state.view === `cat:${c.id}`) state.view = 'all';
@@ -438,6 +682,26 @@ function categoryEditItems(c) {
       },
     },
   ];
+}
+
+/** Renames (or recolors) the category's library folder and the tags on its pictures. Returns false if it could not. */
+async function renameFolder(old, next) {
+  const from = folderOf(old.name);
+  const to = folderOf(next.name);
+  const inside = state.all.filter(x => libraryFolder(x.path) === from);
+  if (!inside.length) return true;
+  if (!state.library.available) {
+    toast(t('toast.libraryOffline', state.library.path), { error: true });
+    return false;
+  }
+  try {
+    await host.renameFolder(from, to, old.name, finderTag(next));
+  } catch (e) {
+    toast(/folder_exists/.test(e.message) ? t('toast.folderExists', to) : t('toast.error', e.message), { error: true });
+    return false;
+  }
+  if (from !== to) applyMoves(inside.map(x => ({ from: x.path, to: LIB + to + x.path.slice(LIB.length + from.length) })));
+  return true;
 }
 
 // Moving to the Trash waits a few seconds so Undo is instant; then the helper does it.
@@ -505,6 +769,7 @@ $('#sideNav').addEventListener('click', async e => {
     expanded.has(more.dataset.more) ? expanded.delete(more.dataset.more) : expanded.add(more.dataset.more);
     return renderSidebar();
   }
+  if (e.target.closest('#librarySettings, #sideSetup')) return openLibraryDialog();
   if (e.target.closest('#addCategory')) {
     const name = await askName({ title: t('category.new'), confirm: t('create') });
     if (!name) return;
@@ -526,19 +791,19 @@ $('#sideNav').addEventListener('contextmenu', e => {
 
 // Drop selected pictures onto a category in the sidebar. / 把选中的图拖到侧边栏的分类上。
 $('#sideNav').addEventListener('dragover', e => {
-  const b = e.target.closest('[data-view^="cat:"], [data-view="uncategorized"]');
+  const b = e.target.closest('[data-view^="cat:"], [data-view="inbox"]');
   if (!b || !e.dataTransfer.types.includes('application/x-image-organizer')) return;
   e.preventDefault();
   b.classList.add('drop');
 });
 $('#sideNav').addEventListener('dragleave', e => e.target.closest('.side-item')?.classList.remove('drop'));
 $('#sideNav').addEventListener('drop', e => {
-  const b = e.target.closest('[data-view^="cat:"], [data-view="uncategorized"]');
+  const b = e.target.closest('[data-view^="cat:"], [data-view="inbox"]');
   if (!b) return;
   e.preventDefault();
   b.classList.remove('drop');
   const paths = JSON.parse(e.dataTransfer.getData('application/x-image-organizer') || '[]');
-  assign(paths, b.dataset.view === 'uncategorized' ? null : b.dataset.view.slice(4));
+  assign(paths, b.dataset.view === 'inbox' ? null : b.dataset.view.slice(4));
 });
 $('#scroller').addEventListener('dragstart', e => {
   const node = e.target.closest('.tile');
@@ -573,7 +838,7 @@ $('#size').addEventListener('input', e => {
   store.setPref('rowHeight', Number(e.target.value));
   refresh();
 });
-$('#rescan').onclick = scan;
+$('#rescan').onclick = () => scan();
 $('#selCategory').onclick = e => menu(categoryItems(selectedPaths()), e.currentTarget);
 $('#selGroup').onclick = makeGroup;
 $('#selTrash').onclick = () => trash(selectedPaths());

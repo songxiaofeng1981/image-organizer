@@ -5,7 +5,7 @@
 // 与本机助手通信（Chrome Native Messaging）。每个请求带 id，助手用同一个 id 回复一条或多条消息。
 
 export const HOST_NAME = 'com.songxiaofeng.imageorganizer';
-export const MIN_HELPER_VERSION = '2.1.0';
+export const MIN_HELPER_VERSION = '2.3.0';
 
 let port = null;
 let seq = 0;
@@ -60,6 +60,10 @@ export class HostError extends Error {
   get permissionDenied() {
     return /permission|not permitted|Code=257|Code=513|no_downloads/i.test(this.message);
   }
+  /** True when the picture library's drive is not plugged in. */
+  get libraryOffline() {
+    return /library_offline/.test(this.message);
+  }
 }
 
 function request(op, details = {}) {
@@ -82,6 +86,13 @@ export const host = {
   full: path => request('full', { path }),
   trash: paths => request('trash', { paths }),
   reveal: path => request('reveal', { path }),
+  // Picture library (helper 2.3). Library paths start with "lib:". / 图片库（助手 2.3）。图片库路径以 "lib:" 开头。
+  config: name => request('config', { name }),
+  setLibrary: (path, name) => request('setLibrary', { path, name }),
+  chooseFolder: prompt => request('chooseFolder', { prompt }),
+  file: (items, folder, tag) => request('file', { items, folder, tag }),
+  unfile: items => request('unfile', { items }),
+  renameFolder: (from, to, removeTag, tag) => request('renameFolder', { from, to, removeTag, tag }),
 };
 
 export function versionAtLeast(version, minimum) {

@@ -186,6 +186,12 @@ export function askName({ title, value = '', confirm }) {
     const ok = dialog.querySelector('[data-confirm]');
     const sync = () => (ok.disabled = !input.value.trim());
     input.oninput = sync;
+    // Return saves. (The browser's default would press the first button, Cancel.) / 回车即保存（浏览器默认会按第一个按钮“取消”）。
+    input.onkeydown = e => {
+      if (e.key !== 'Enter' || e.isComposing) return;
+      e.preventDefault();
+      if (input.value.trim()) dialog.close('ok');
+    };
     sync();
     dialog.onclose = () => resolve(dialog.returnValue === 'ok' ? input.value.trim() : null);
     dialog.showModal();

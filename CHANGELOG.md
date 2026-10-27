@@ -1,5 +1,18 @@
 # Changelog / 更新记录
 
+## v2.3.0 — 2026-10-27
+
+Downloads becomes an inbox: filing moves pictures into your own picture library. / “下载”变成收件箱：归类会把图片移进你自己的图片库。
+
+- **Picture library.** Choose a folder (an external drive works well). Pressing `1`–`9` moves the picture out of Downloads into `<library>/<category>/`; `0` moves it back; `⌘Z` undoes. / **图片库。** 选一个文件夹（放在外置硬盘上很合适）。按 `1`–`9` 把图片从“下载”移到 `<图片库>/<分类>/`；按 `0` 移回；`⌘Z` 撤销。
+- Across drives the original is removed only after the copy is checked (size and SHA-256). A picture already in the library is not stored twice; the download goes to the Trash. Names never overwrite each other. / 跨硬盘时，副本核对无误（大小和 SHA-256）后才移走原件。图片库里已有的图不再存第二份，下载的那份移到废纸篓。重名不会覆盖。
+- Each filed picture gets a Finder tag (category name and color) and a Finder comment (website, original name, download and filing time); the library keeps a hidden `.image-organizer.json` index. / 每张收入的图都有访达标签（分类名和颜色）和访达注释（来源网站、原文件名、下载和收入时间）；图片库里保存隐藏的 `.image-organizer.json` 索引。
+- A category is its library folder: renaming or recoloring a category renames the folder and retags its pictures; folders made in Finder show up as categories. / 分类就是图片库里的文件夹：重命名或改颜色会同时改文件夹和标签；在访达里建的文件夹也会成为分类。
+- Sidebar: "To Sort" (Downloads) and "Picture Library" (all pictures and categories). Works when the drive is unplugged: the library shows "Not connected". / 侧边栏分为“待整理”（下载）和“图片库”（全部图片和各分类）。硬盘没接上时，图片库显示“未连接”。
+- Pictures categorized with 2.2 stay where they are; one click moves them into the library. / 用 2.2 归过类的图保持不动，点一下即可全部移进图片库。
+- Return now saves in the name dialog (it used to cancel). / 命名对话框里按回车现在是保存（以前会变成取消）。
+- Helper 2.3.0 (needs reinstalling): new `config`, `setLibrary`, `chooseFolder`, `file`, `unfile`, `renameFolder` requests; asks macOS for access to external drives when the library is there. / 本机助手 2.3.0（需要重新安装）：新增 `config`、`setLibrary`、`chooseFolder`、`file`、`unfile`、`renameFolder` 请求；图片库在外置硬盘上时会向 macOS 申请访问权限。
+
 ## v2.2.0 — 2026-10-24
 
 First public release: a rewrite of the 1.x trial version. / 第一个公开版本：在 1.x 试用版基础上重写。

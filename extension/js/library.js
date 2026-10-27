@@ -2,7 +2,7 @@
 // in what order, which ones fold into a group, and the date sections.
 // 把文件列表变成屏幕上要显示的内容：当前视图有哪些图、什么顺序、哪些合成一组、按日期怎么分段。
 
-import { data, categoryOf } from './store.js';
+import { data, categoryOf, inLibrary } from './store.js';
 import { t, lang } from './i18n.js';
 
 const DAY = 86400000;
@@ -87,8 +87,8 @@ export const TIME_FILTERS = Object.keys(TIME);
 
 const FILTERS = { ...Object.fromEntries(SMART.map(([id, , test]) => [id, test])), ...TIME };
 
-/** First-level folder inside Downloads, or '' for pictures directly in Downloads. */
-export const topFolder = x => (x.folder ? x.folder.split('/')[0] : '');
+/** First-level folder inside Downloads, or '' for pictures directly in Downloads (or in the library). */
+export const topFolder = x => (x.folder && !x.library ? x.folder.split('/')[0] : '');
 
 /** Devices, websites and sub-folders present, most pictures first: [[key, count], ...]. Small icons are left out. */
 export function facets(items) {
@@ -144,10 +144,15 @@ export function prepare(items) {
   return out;
 }
 
+/**
+ * Views: `inbox` = pictures still in Downloads that have no category yet; `all` = the picture library;
+ * `cat:<id>` = a category (its library folder, plus older Downloads pictures given that category).
+ * 视图：`inbox` 为“下载”里还没分类的图；`all` 为图片库；`cat:<id>` 为分类（图片库中的文件夹，加上以前归入该分类、还在“下载”里的图）。
+ */
 export function inView(x, view) {
-  if (view === 'all') return true;
-  if (view === 'uncategorized') return !categoryOf(x.path);
-  if (view.startsWith('cat:')) return data.assign[x.path] === view.slice(4);
+  if (view === 'all') return inLibrary(x.path);
+  if (view === 'inbox') return !inLibrary(x.path) && !categoryOf(x.path);
+  if (view.startsWith('cat:')) return categoryOf(x.path)?.id === view.slice(4);
   if (view.startsWith('f:')) return FILTERS[view.slice(2)]?.(x) ?? false;
   if (view.startsWith('device:')) return x.device === view.slice(7);
   if (view.startsWith('site:')) return x.sites.includes(view.slice(5));

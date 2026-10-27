@@ -11,6 +11,12 @@ import { t } from './i18n.js';
 
 const STRIP_RADIUS = 40;
 
+/** "Downloads/sub-folder" or "Picture Library/category". / “下载/子文件夹”或“图片库/分类”。 */
+const place = x => {
+  const top = x.library ? t('info.library') : t('downloads');
+  return x.folder ? `${top}/${x.folder}` : top;
+};
+
 export class Viewer {
   constructor(root, hooks) {
     this.root = root;
@@ -188,7 +194,7 @@ export class Viewer {
     const x = this.current;
     const c = this.hooks.categoryOf(x.path);
     const rows = [
-      [t('info.folder'), x.folder ? `${t('downloads')}/${x.folder}` : t('downloads')],
+      [t('info.folder'), place(x)],
       [t('info.dimensions'), x.width ? `${x.width} × ${x.height}` : '—'],
       [t('info.size'), formatSize(x.size)],
       [t('info.type'), x.ext.toUpperCase()],
@@ -199,7 +205,9 @@ export class Viewer {
     // Only shown when the file has them. / 文件有这些信息时才显示。
     if (x.device) rows.push([t('info.device'), x.device]);
     if (x.sites.length) rows.push([t('info.source'), x.sites.map(siteName).join(', ')]);
-    if (x.duplicateOf) rows.push([t('info.duplicateOf'), x.duplicateOf]);
+    if (x.originalName && x.originalName !== x.name) rows.push([t('info.originalName'), x.originalName]);
+    if (x.filed) rows.push([t('info.filed'), formatDate(Date.parse(x.filed))]);
+    if (x.duplicateOf) rows.push([t('info.duplicateOf'), x.duplicateOf.startsWith('lib:') ? `${t('info.library')}/${x.duplicateOf.slice(4)}` : `${t('downloads')}/${x.duplicateOf}`]);
     this.info.innerHTML = `<h3>${escapeHtml(x.name)}</h3><dl>${rows
       .map(([k, v]) => `<dt>${escapeHtml(k)}</dt><dd>${escapeHtml(v)}</dd>`)
       .join('')}</dl><button type="button" class="link-button" data-v="reveal">${icon('folder')}${escapeHtml(t('revealInFinder'))}</button>

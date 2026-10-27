@@ -91,6 +91,26 @@
     </form>
   </dialog>
 
+  <dialog id="libraryDialog" class="sheet library-sheet">
+    <form method="dialog">
+      <h3 data-i18n="library.title"></h3>
+      <p class="sheet-text" data-i18n="library.body"></p>
+      <div class="sheet-label" data-i18n="library.suggested"></div>
+      <div id="librarySuggestions" class="library-suggestions"></div>
+      <label class="sheet-label" for="libraryPath" data-i18n="library.path"></label>
+      <div class="library-row">
+        <input type="text" id="libraryPath" autocomplete="off" spellcheck="false" required>
+        <button type="button" id="libraryChoose" class="button" data-i18n="library.choose"></button>
+      </div>
+      <p id="libraryCurrent" class="sheet-hint"></p>
+      <p id="libraryError" class="sheet-error" hidden></p>
+      <div class="sheet-actions">
+        <button type="submit" value="cancel" class="button" formnovalidate data-i18n="cancel"></button>
+        <button type="submit" value="ok" class="button primary" data-i18n="save"></button>
+      </div>
+    </form>
+  </dialog>
+
   <dialog id="keysDialog" class="sheet keys-sheet">
     <form method="dialog">
       <h3 data-i18n="shortcuts"></h3>

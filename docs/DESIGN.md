@@ -8,6 +8,8 @@ Why the project is built the way it is. Read this before a larger change; if you
 
 Pictures pile up in `~/Downloads`: screenshots, saved posts, references, photos from chats. The job is **triage**: look at each one briefly, keep and sort what matters, clear out the rest. So the design puts speed of going through pictures first. Browsing and searching come second.
 
+Since 2.3, Downloads is only the inbox ("To Sort"). Filing a picture **moves it out of Downloads** into a picture library folder you choose (for example on an external drive), so Downloads gets emptier as you sort instead of growing forever (see 3.12).
+
 ## 2. Architecture
 
 ```
@@ -39,9 +41,11 @@ The helper is an app bundle (`ImageOrganizerHelper.app`) with a fixed bundle ID 
 
 Every path from the page is checked by `resolve()`:
 
-- It must be relative, inside Downloads, with no `..` and no hidden component.
+- It must be relative, inside Downloads (or, with the `lib:` prefix, inside the picture library), with no `..` and no hidden component.
 - No component may be a symbolic link.
 - It must be a regular file with an allowed image extension.
+
+The picture library is set with `setLibrary`, which refuses system folders, the home folder itself, `~/Library`, and anything inside Downloads or containing it. Category folder names must be one plain name (no `/`, `:`, leading dot).
 
 The helper also checks the caller's origin (Chrome passes it as the first argument) against the extension ID.
 
@@ -61,11 +65,15 @@ For in-app Undo, the page hides the picture at once and **waits about 6 seconds 
 
 ### 3.5 Where the data lives
 
-Categories, assignments (by path relative to Downloads), groups and view preferences live in `chrome.storage.local` under one key, `io:v2`. Nothing is written into Downloads.
+Categories (name, color, order), groups and view preferences live in `chrome.storage.local` under one key, `io:v2`. Nothing is written into Downloads.
+
+Which category a picture is in is decided by the **file system**: a picture in `<library>/Screenshots/` is in the category named "Screenshots". So the sorting survives removing the extension or reinstalling Chrome; library folders without a category become categories on the next scan. The `assign` map in `io:v2` now only holds Downloads pictures categorized before 2.3; the page offers to move them ("Move N Categorized to Library").
+
+The library location is in `~/Library/Application Support/ImageOrganizer/settings.json` (written by the helper).
 
 Version 1.x data (`image-organizer:.image-categories.json`, `…groups.json`) is migrated once on first start. The extension keeps the same ID (the `key` in `manifest.json`), so the data stays with it across updates. Removing the extension erases it, which is why the installer updates 1.x in place.
 
-Known limit: if you rename or move a file in Finder, its category is lost, because the path changed.
+Known limit: groups follow file paths, so renaming or moving a file in Finder takes it out of its group. Moving a file between library folders in Finder changes its category, as expected.
 
 ### 3.6 "Added" date
 
@@ -97,11 +105,29 @@ The page adds rules on top (`prepare()` in `library.js`): HEIC/HEIF and `IMG_123
 
 ### 3.10 A quiet sidebar
 
-Only the Library rows and the smart categories have icons, and categories have color dots. Devices, websites, time and folders are plain text. Lists built from your files (devices, websites, folders) show the five largest with "Show all". Empty rows are hidden, and each section folds by clicking its heading (remembered).
+Only the To Sort and Picture Library rows and the smart categories have icons, and categories have color dots. Devices, websites, time and folders are plain text. Lists built from your files (devices, websites, folders) show the five largest with "Show all". Empty rows are hidden, and each section folds by clicking its heading (remembered).
 
 ### 3.11 No build step
 
 The extension is plain HTML, CSS and ES modules. Anyone can read or change it without installing Node, and the folder in the repository is exactly what Chrome loads.
+
+### 3.12 The picture library
+
+```
+<library>/                   e.g. /Volumes/ssd2/Picture Library
+  Family/  Work/  …          one folder per category
+  .image-organizer.json      where each picture came from (hidden)
+```
+
+- **Filing = moving.** `1`–`9` (or the menu, or drag & drop) moves the picture to `<library>/<category>/`. `0` moves a library picture back to Downloads, into the sub-folder it came from if that still exists. Undo moves it back.
+- **The original is removed only after a checked copy exists.** On the same drive it is a plain rename. Across drives the helper copies under a hidden `.io-partial-…` name, compares size and SHA-256 with the original, renames the copy into place, and only then removes the original. If anything fails, the original stays.
+- **No second copy.** If the library already has a file with the same content (by SHA-256 in the index), the download is moved to the Trash instead of copied again.
+- **Names never collide.** `photo.jpg` becomes `photo 2.jpg` if needed; nothing is overwritten.
+- **Each filed picture carries its story**: a Finder tag with the category name and color (`_kMDItemUserTags`), a Finder comment (`kMDItemFinderComment`: website, original name, download time, filing time), and the browser's own download record (`kMDItemWhereFroms`), which is copied with the file. The index keeps original name and path, download and filing time, size, SHA-256 and websites. Pixels and EXIF are never changed.
+- **Renaming or recoloring a category** renames its folder and updates the tags of the pictures in it. A category whose folder still has pictures cannot be deleted.
+- **The drive may be unplugged.** The library section then says "Not connected"; To Sort still works, filing waits for the drive.
+- **Small icons are not part of it.** They stay out of To Sort and are only listed under "Small Icons".
+- macOS asks once for access to removable volumes (or Desktop/Documents) when the library lives there; the helper's `Info.plist` has the matching usage descriptions.
 
 ## 4. Message protocol
 
@@ -115,16 +141,23 @@ Each request is a JSON object with an `id` and an `op`. The helper answers with 
 | `{op: "full", path}` | Same as thumb. The original bytes for formats Chrome shows; a JPEG (≤4096 px) for HEIC/HEIF/TIFF. |
 | `{op: "trash", paths: [...]}` | `{type: "result", ok, trashed: [...], failed: [{path, error}]}` |
 | `{op: "reveal", path}` | `{type: "result", ok}` (opens a Finder window with the file selected) |
-| anything wrong | `{type: "error", error}` with a short code such as `invalid_path`, `not_found`, `no_downloads` |
+| `{op: "config", name}` | `{type: "result", library?, available, suggestions: [...]}`. `name` is the folder name for suggestions ("Picture Library"). |
+| `{op: "setLibrary", path, name}` | Same as `config`, after saving (creates the last folder level if missing). |
+| `{op: "chooseFolder", prompt}` | `{type: "result", ok, path?}` from the macOS Choose Folder window |
+| `{op: "file", items: [{path, comment?, removeTag?}], folder, tag: {name, color}}` | `{type: "result", ok, moved: [{from, to, duplicate?}], failed: [...]}` |
+| `{op: "unfile", items: [{path, removeTag?}]}` | Same shape as `file`; `to` is relative to Downloads |
+| `{op: "renameFolder", from, to, removeTag, tag}` | `{type: "result", ok}`; error `folder_exists` if `to` is taken |
+| anything wrong | `{type: "error", error}` with a short code such as `invalid_path`, `not_found`, `no_downloads`, `no_library`, `library_offline`, `bad_library`, `invalid_folder` |
 
-An item from `list`: `{path, name, folder, ext, size, added, modified, width, height}`, plus, only when present, `make`, `model`, `screenshot: true`, `frames` (>1), `from` (host names) and `duplicateOf` (path of the original). `path` and `folder` are relative to Downloads; `width`/`height` take EXIF orientation into account and are 0 when unknown (SVG).
+An item from `list`: `{path, name, folder, ext, size, added, modified, width, height}`, plus, only when present, `make`, `model`, `screenshot: true`, `frames` (>1), `from` (host names) and `duplicateOf` (path of the original). `path` and `folder` are relative to Downloads, or for library pictures `path` is `lib:` + the path inside the library, and the item also has `library: true`, `filed`, and (from the index) `originalName`; their `added` is the original download time. `width`/`height` take EXIF orientation into account and are 0 when unknown (SVG).
 
 Chrome limits a message from the helper to 1 MB, hence the chunks.
 
 ## 5. Known gaps
 
 - macOS only. A Windows helper would need a different way to make thumbnails and use the Recycle Bin.
-- Only Downloads. Other folders would need a folder picker and the matching permission.
-- Categories follow file paths, so renaming or moving a file in Finder loses its category.
+- Only Downloads is read as the inbox; the picture library is the only other folder.
+- Changing the library location does not move the pictures already in the old one.
+- Groups follow file paths, so renaming or moving a file in Finder takes it out of its group.
 - No disk cache for thumbnails yet. Thumbnails are made again each time the page opens (fast for most files thanks to embedded thumbnails).
 - Not in the Chrome Web Store, so Developer mode is required.
