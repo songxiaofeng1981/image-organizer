@@ -14,7 +14,9 @@ localStorage). Point it at a sample folder, not your real Downloads: Trash reall
 和 chrome.storage（存在 localStorage）。请指向示例文件夹而不是真正的“下载”：移到废纸篓是真的会移动文件。
 """
 import json
+import mimetypes
 import os
+import urllib.parse
 import queue
 import struct
 import subprocess
@@ -81,7 +83,10 @@ class Handler(SimpleHTTPRequestHandler):
         self.send_header("Cache-Control", "no-store")
         # Same Content Security Policy as the extension, so violations show up here too.
         # 使用和插件相同的内容安全策略，违规在这里也能看到。
-        self.send_header("Content-Security-Policy", CSP)
+        # (The sample web page stands for someone else's site, so it does not get the extension's policy.)
+        # （示例网页代表别人的网站，不套用插件的策略。）
+        if not self.path.startswith(("/__dev/page", "/__dev/sample-page", "/__samples/")):
+            self.send_header("Content-Security-Policy", CSP)
         super().end_headers()
 
     def do_GET(self):
@@ -89,8 +94,24 @@ class Handler(SimpleHTTPRequestHandler):
             html = open(os.path.join(EXT, "gallery.html"), encoding="utf-8").read()
             html = html.replace('<script type="module"', '<script src="/__dev/chrome-shim.js"></script>\n  <script type="module"', 1)
             return self.reply(200, "text/html; charset=utf-8", html.encode())
+        if self.path.split("?")[0] == "/popup.html":
+            html = open(os.path.join(EXT, "popup.html"), encoding="utf-8").read()
+            html = html.replace('<script type="module"', '<script src="/__dev/chrome-shim.js"></script>\n  <script type="module"', 1)
+            return self.reply(200, "text/html; charset=utf-8", html.encode())
         if self.path == "/__dev/chrome-shim.js":
             return self.reply(200, "text/javascript", open(os.path.join(HERE, "chrome-shim.js"), "rb").read())
+        # A sample web page for the toolbar popup, with pictures from the sample folder.
+        # 给工具栏小窗口用的示例网页，图片来自示例文件夹。
+        if self.path in ("/__dev/page.html", "/__dev/sample-page.css"):
+            name = "sample-page.html" if self.path.endswith(".html") else "sample-page.css"
+            kind = "text/html; charset=utf-8" if name.endswith(".html") else "text/css"
+            return self.reply(200, kind, open(os.path.join(HERE, name), "rb").read())
+        if self.path.startswith("/__samples/"):
+            rel = urllib.parse.unquote(self.path[len("/__samples/"):].split("?")[0])
+            full = os.path.realpath(os.path.join(self.server.root, rel))
+            if not full.startswith(os.path.realpath(self.server.root) + os.sep) or not os.path.isfile(full):
+                return self.reply(404, "text/plain", b"not found")
+            return self.reply(200, mimetypes.guess_type(full)[0] or "application/octet-stream", open(full, "rb").read())
         return super().do_GET()
 
     def do_POST(self):
@@ -116,6 +137,7 @@ def main():
     # The picture library setting is kept next to the sample folder, never in your real settings.
     # 图片库设置保存在示例文件夹旁边，不会改到你真正的设置。
     config = root.rstrip("/") + "-config"
+    server.root = root
     server.bridge = Bridge(root, config)
     print(f"Serving {root} (settings in {config})\nOpen http://127.0.0.1:{port}/gallery.html  (add ?lang=zh or ?lang=en)")
     server.serve_forever()

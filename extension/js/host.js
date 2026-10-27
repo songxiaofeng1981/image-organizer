@@ -5,7 +5,7 @@
 // 与本机助手通信（Chrome Native Messaging）。每个请求带 id，助手用同一个 id 回复一条或多条消息。
 
 export const HOST_NAME = 'com.songxiaofeng.imageorganizer';
-export const MIN_HELPER_VERSION = '2.3.0';
+export const MIN_HELPER_VERSION = '2.4.0';
 
 let port = null;
 let seq = 0;
@@ -93,6 +93,8 @@ export const host = {
   file: (items, folder, tag) => request('file', { items, folder, tag }),
   unfile: items => request('unfile', { items }),
   renameFolder: (from, to, removeTag, tag) => request('renameFolder', { from, to, removeTag, tag }),
+  // Helper 2.4: a picture from a web page, as base64. / 助手 2.4：来自网页的图片（base64）。
+  save: ({ data, name, folder, tag, comment, from }) => request('save', { data, name, folder, tag, comment, from }),
 };
 
 export function versionAtLeast(version, minimum) {

@@ -13,7 +13,7 @@ import Foundation
 import ImageIO
 import UniformTypeIdentifiers
 
-let helperVersion = "2.3.0"
+let helperVersion = "2.4.0"
 let allowedExtensionIDs: Set<String> = ["gjmkfcibnihdnoahklpfdjcjekangjhh"]
 let allowedExtensions: Set<String> = ["png", "jpg", "jpeg", "gif", "webp", "heic", "heif", "tif", "tiff", "bmp", "avif", "svg", "ico"]
 // Folders that hold app or code assets, not the user's pictures.
@@ -564,6 +564,61 @@ func file(id: String, items: [[String: Any]], folder rawFolder: String, tag: [St
     try send(["id": id, "type": "result", "ok": failed.isEmpty, "moved": moved, "failed": failed])
 }
 
+/// Saves a picture taken from a web page (its bytes, base64) into a category folder of the library.
+/// The type comes from the bytes, not the name; anything that is not a picture is refused. A picture already in the
+/// library (same content) is not saved twice. The page and image addresses are kept like a browser download's.
+/// 把从网页取来的图片（base64 数据）存进图片库的分类文件夹。格式按数据本身判断，不是图片就拒绝；图片库里已有相同内容时不重复保存。
+/// 网页地址和图片地址像浏览器下载那样记录下来。
+func save(id: String, data b64: String, name rawName: String, folder rawFolder: String, tag: [String: Any]?,
+          comment: String?, from: [String]) throws {
+    guard let data = Data(base64Encoded: b64), !data.isEmpty else { throw HelperError.cannotDecode }
+    guard let source = CGImageSourceCreateWithData(data as CFData, nil), let uti = CGImageSourceGetType(source) as String?,
+          var ext = UTType(uti)?.preferredFilenameExtension?.lowercased()
+    else { throw HelperError.unsupportedType }
+    if ext == "jpeg" { ext = "jpg" }
+    guard allowedExtensions.contains(ext) else { throw HelperError.unsupportedType }
+    libraryLock.lock()
+    defer { libraryLock.unlock() }
+    let lib = try library()
+    let folder = lib.appendingPathComponent(try folderName(rawFolder), isDirectory: true)
+    if (try? folder.resourceValues(forKeys: [.isSymbolicLinkKey]).isSymbolicLink) == true { throw HelperError.invalidFolder }
+    if !fm.fileExists(atPath: folder.path) { try fm.createDirectory(at: folder, withIntermediateDirectories: false) }
+    var index = readIndex(lib)
+    let hash = SHA256.hash(data: data).map { String(format: "%02x", $0) }.joined()
+    if let existing = index.first(where: { $0.value["sha256"] as? String == hash && fm.fileExists(atPath: lib.appendingPathComponent($0.key).path) })?.key {
+        return try send(["id": id, "type": "result", "ok": true, "path": libPrefix + existing, "duplicate": true])
+    }
+    // A plain file name: no folders, no leading dot, no control characters, the right extension.
+    // 普通文件名：不含文件夹、不以点开头、没有控制字符，扩展名与内容一致。
+    var stem = ((rawName as NSString).lastPathComponent as NSString).deletingPathExtension
+    stem = String(stem.unicodeScalars.filter { !CharacterSet.controlCharacters.contains($0) && !"/:\\".unicodeScalars.contains($0) })
+    stem = String(stem.drop(while: { $0 == "." || $0 == " " }).prefix(120)).trimmingCharacters(in: .whitespaces)
+    if stem.isEmpty { stem = "image" }
+    let dest = freeURL(in: folder, name: "\(stem).\(ext)")
+    let partial = folder.appendingPathComponent(".io-partial-\(UUID().uuidString).\(ext)")
+    do {
+        try data.write(to: partial)
+        try fm.moveItem(at: partial, to: dest)
+    } catch {
+        try? fm.removeItem(at: partial)
+        throw error
+    }
+    let urls = from.filter { $0.hasPrefix("http://") || $0.hasPrefix("https://") }
+    if !urls.isEmpty { setPlistAttribute(dest, "com.apple.metadata:kMDItemWhereFroms", urls) }
+    retag(dest, remove: nil, add: tag)
+    if let comment, !comment.isEmpty { setPlistAttribute(dest, commentAttribute, comment) }
+    let iso = ISO8601DateFormatter()
+    let now = iso.string(from: Date())
+    var info: [String: Any] = ["originalName": dest.lastPathComponent, "downloaded": now, "filed": now, "size": data.count, "sha256": hash]
+    let hosts = urls.compactMap { URL(string: $0)?.host?.lowercased() }
+    if !hosts.isEmpty { info["from"] = Array(NSOrderedSet(array: hosts)) }
+    if let page = urls.last { info["page"] = page }
+    let key = relative(dest, in: lib)
+    index[key] = info
+    try writeIndex(lib, index)
+    try send(["id": id, "type": "result", "ok": true, "path": libPrefix + key])
+}
+
 /// Puts library pictures back into Downloads, where they were before (used by Undo and by "Move back to Downloads").
 /// 把图片库里的图放回“下载”原来的位置（用于撤销和“移回下载”）。
 func unfile(id: String, items: [[String: Any]]) throws {
@@ -724,6 +779,9 @@ func handle(_ request: [String: Any]) {
         case "file": try file(id: id, items: request["items"] as? [[String: Any]] ?? [], folder: request["folder"] as? String ?? "",
                               tag: request["tag"] as? [String: Any])
         case "unfile": try unfile(id: id, items: request["items"] as? [[String: Any]] ?? [])
+        case "save": try save(id: id, data: request["data"] as? String ?? "", name: request["name"] as? String ?? "",
+                              folder: request["folder"] as? String ?? "", tag: request["tag"] as? [String: Any],
+                              comment: request["comment"] as? String, from: request["from"] as? [String] ?? [])
         case "renameFolder": try renameFolder(id: id, from: request["from"] as? String ?? "", to: request["to"] as? String ?? "",
                                               removeTag: request["removeTag"] as? String, tag: request["tag"] as? [String: Any])
         default: throw HelperError.unknownOp
@@ -788,7 +846,8 @@ let slots = DispatchSemaphore(value: 4)
 let inFlight = DispatchGroup()
 while let header = readExactly(4) {
     let length = header.withUnsafeBytes { $0.loadUnaligned(as: UInt32.self).littleEndian }
-    guard length > 0, length <= 4 * 1024 * 1024, let body = readExactly(Int(length)) else { break }
+    // Pictures saved from web pages arrive as base64, so requests may be large. / 网页图片以 base64 发来，请求可能较大。
+    guard length > 0, length <= 96 * 1024 * 1024, let body = readExactly(Int(length)) else { break }
     guard let request = (try? JSONSerialization.jsonObject(with: body)) as? [String: Any] else {
         try? send(["id": "", "type": "error", "error": "bad_request"])
         continue

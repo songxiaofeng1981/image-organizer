@@ -23,8 +23,46 @@
   };
   const KEY = 'dev-chrome-storage';
   const read = () => JSON.parse(localStorage.getItem(KEY) || '{}');
+  // The toolbar popup works on "the current tab": here that is dev/sample-page.html in a hidden same-origin
+  // frame, and executeScript runs the function in that frame.
+  // 工具栏小窗口操作“当前标签页”：开发时是隐藏框架里的 dev/sample-page.html，executeScript 在框架里运行函数。
+  const PAGE = '/__dev/page.html';
+  let frame = null;
+  const pageFrame = () =>
+    (frame ||= new Promise(resolve => {
+      const f = document.createElement('iframe');
+      // Off screen rather than hidden, so the page is laid out like a real one. / 放在屏幕外而不是隐藏，让网页正常排版。
+      f.style.cssText = 'position:absolute;left:-12000px;top:0;width:1200px;height:900px;border:0';
+      f.src = PAGE;
+      f.onload = () => resolve(f.contentWindow);
+      document.documentElement.append(f);
+    }));
+  const tabs = {
+    query: async () => [{ id: 1, url: location.origin + PAGE, title: 'Autumn kitchen ideas' }],
+    create: async ({ url }) => open(url, '_blank'),
+    update: async () => {},
+  };
+  const scripting = {
+    async executeScript({ func, args = [] }) {
+      const win = await pageFrame();
+      return [{ result: await win.eval(`(${func})`)(...args) }];
+    },
+  };
+  // The real manifest, read once (synchronously, like chrome.runtime.getManifest). / 真实的 manifest，同步读一次。
+  let manifest = null;
+  const getManifest = () => {
+    if (!manifest) {
+      const xhr = new XMLHttpRequest();
+      xhr.open('GET', '/manifest.json', false);
+      xhr.send();
+      manifest = JSON.parse(xhr.responseText);
+    }
+    return manifest;
+  };
   window.chrome = {
-    runtime: { lastError: null, connectNative, getURL: p => `/${p}` },
+    tabs,
+    scripting,
+    runtime: { lastError: null, connectNative, getURL: p => `/${p}`, getContexts: async () => [], getManifest },
     i18n: { getUILanguage: () => navigator.language },
     storage: {
       local: {

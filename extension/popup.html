@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="color-scheme" content="light dark">
+  <title>Image Organizer</title>
+  <link rel="stylesheet" href="gallery.css">
+  <link rel="stylesheet" href="popup.css">
+  <script type="module" src="js/popup.js"></script>
+</head>
+<body class="popup">
+  <header class="p-head">
+    <div class="p-titles">
+      <strong id="pTitle"></strong>
+      <span id="pSub" class="view-sub"></span>
+    </div>
+    <button type="button" id="pOpen" class="button small plain" data-i18n="popup.openGallery"></button>
+  </header>
+  <div id="pTools" class="p-tools" hidden>
+    <button type="button" id="pAll" class="button small plain" data-i18n="selection.all"></button>
+    <label class="p-small"><input type="checkbox" id="pShowSmall"><span data-i18n="popup.showSmall"></span></label>
+  </div>
+  <main id="pGrid" class="p-grid"></main>
+  <p id="pNote" class="p-note" hidden></p>
+  <footer id="pFoot" class="p-foot" hidden>
+    <select id="pCategory" class="select"></select>
+    <button type="button" id="pSave" class="button primary" disabled></button>
+  </footer>
+</body>
+</html>

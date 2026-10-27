@@ -7,8 +7,8 @@
   <key>CFBundleIdentifier</key><string>com.songxiaofeng.imageorganizer.helper</string>
   <key>CFBundleName</key><string>Image Organizer Helper</string>
   <key>CFBundlePackageType</key><string>APPL</string>
-  <key>CFBundleShortVersionString</key><string>2.3.0</string>
-  <key>CFBundleVersion</key><string>5</string>
+  <key>CFBundleShortVersionString</key><string>2.4.0</string>
+  <key>CFBundleVersion</key><string>6</string>
   <key>LSMinimumSystemVersion</key><string>12.0</string>
   <key>LSBackgroundOnly</key><true/>
   <key>NSDownloadsFolderUsageDescription</key><string>Image Organizer reads the pictures in Downloads only while its gallery page is open, to show them, file them into your picture library and move them to the Trash. 图片整理只在图库页打开时读取“下载”中的图片，用于显示、归入图片库和移到废纸篓。</string>

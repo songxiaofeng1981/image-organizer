@@ -1,0 +1,111 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 600" width="960" height="600" role="img" aria-label="图片整理 整体架构">
+<title>图片整理 整体架构</title>
+<style>
+  text { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", "Segoe UI", "Microsoft YaHei", sans-serif; fill: #1d1d1f; }
+  .bg { fill: #ffffff; }
+  .box { fill: #f3f3f5; stroke: #d2d2d7; stroke-width: 1; }
+  .frame { fill: none; stroke: #007aff; stroke-width: 1.5; stroke-dasharray: 6 4; }
+  .accent { fill: #e8f1ff; stroke: #007aff; stroke-width: 1.2; }
+  .helper { fill: #fff4e5; stroke: #ff9500; stroke-width: 1.2; }
+  .disk { fill: #eaf8ee; stroke: #34c759; stroke-width: 1.2; }
+  .page { fill: #ffffff; stroke: #86868b; stroke-width: 1.2; stroke-dasharray: 4 3; }
+  .pill { fill: #ffffff; stroke: #ffcc80; stroke-width: 1; }
+  .title { font-size: 15px; font-weight: 700; }
+  .h { font-size: 13.5px; font-weight: 650; }
+  .t { font-size: 12px; fill: #424245; }
+  .s { font-size: 11px; fill: #6e6e73; }
+  .label { font-size: 11.5px; fill: #0060df; font-weight: 600; }
+  .frame-label { font-size: 12px; fill: #0060df; font-weight: 700; }
+  .line { stroke: #007aff; stroke-width: 1.6; fill: none; }
+  .line.gray { stroke: #86868b; }
+  .arrow { fill: #007aff; }
+  .arrow.gray { fill: #86868b; }
+  @media (prefers-color-scheme: dark) {
+    text { fill: #f5f5f7; }
+    .bg { fill: #1e1e1e; }
+    .box { fill: #2c2c2e; stroke: #48484a; }
+    .accent { fill: #0b2a4d; stroke: #0a84ff; }
+    .helper { fill: #3a2a12; stroke: #ff9f0a; }
+    .disk { fill: #123320; stroke: #30d158; }
+    .page { fill: #1e1e1e; stroke: #8e8e93; }
+    .pill { fill: #2c2c2e; stroke: #8a5a1c; }
+    .frame { stroke: #0a84ff; }
+    .t { fill: #d1d1d6; }
+    .s { fill: #a1a1a6; }
+    .label, .frame-label { fill: #64a8ff; }
+    .line { stroke: #0a84ff; }
+    .line.gray { stroke: #8e8e93; }
+    .arrow { fill: #0a84ff; }
+    .arrow.gray { fill: #8e8e93; }
+  }
+</style>
+<defs>
+  <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path class="arrow" d="M0,0 L10,5 L0,10 z"/>
+  </marker>
+  <marker id="g" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path class="arrow gray" d="M0,0 L10,5 L0,10 z"/>
+  </marker>
+</defs>
+<rect class="bg" width="960" height="600" rx="14"/>
+<text class="title" x="30" y="36" text-anchor="start">图片整理 整体架构</text>
+<rect class="page" x="20" y="80" width="220" height="100" rx="10"/>
+<text class="h" x="34" y="102" text-anchor="start">你正在看的网页</text>
+<text class="t" x="34" y="121" text-anchor="start">Pinterest、X、小红书……</text>
+<text class="t" x="34" y="138" text-anchor="start">登录后你看到的内容</text>
+<rect class="frame" x="340" y="52" width="600" height="148" rx="14"/>
+<text class="frame-label" x="356" y="72" text-anchor="start">Chrome 插件 · 纯 HTML/CSS/JS 模块，不需要构建</text>
+<rect class="accent" x="356" y="84" width="182" height="100" rx="10"/>
+<text class="h" x="370" y="106" text-anchor="start">工具栏小窗口</text>
+<text class="t" x="370" y="125" text-anchor="start">popup.html · popup.js</text>
+<text class="t" x="370" y="142" text-anchor="start">挑选本页的图片</text>
+<text class="s" x="370" y="159" text-anchor="start">存进某个分类</text>
+<rect class="accent" x="552" y="84" width="196" height="100" rx="10"/>
+<text class="h" x="566" y="106" text-anchor="start">图库页面</text>
+<text class="t" x="566" y="125" text-anchor="start">gallery.html · main.js</text>
+<text class="t" x="566" y="142" text-anchor="start">待整理 · 图片库 · 各种视图</text>
+<text class="s" x="566" y="159" text-anchor="start">按 1–9 归类，可撤销</text>
+<rect class="box" x="762" y="84" width="162" height="100" rx="10"/>
+<text class="h" x="776" y="106" text-anchor="start">chrome.storage</text>
+<text class="t" x="776" y="125" text-anchor="start">io:v2</text>
+<text class="t" x="776" y="142" text-anchor="start">分类、颜色、</text>
+<text class="s" x="776" y="159" text-anchor="start">组、偏好设置</text>
+<path class="line gray" d="M748,134 L762,134" marker-start="url(#g)" marker-end="url(#g)"/>
+<path class="line" d="M356,134 L240,134" marker-start="url(#a)" marker-end="url(#a)"/>
+<text class="label" x="298" y="158" text-anchor="middle">在网页里</text>
+<text class="label" x="298" y="173" text-anchor="middle">找图片、取数据</text>
+<rect class="box" x="340" y="218" width="600" height="28" rx="8"/>
+<text class="s" x="640" y="236" text-anchor="middle">Native Messaging · 通过标准输入输出传 JSON · 回复按 512 KB 分块</text>
+<path class="line" d="M447,184 L447,218" marker-end="url(#a)"/>
+<path class="line" d="M447,246 L447,300" marker-end="url(#a)"/>
+<text class="label" x="455" y="278" text-anchor="start">save 存图</text>
+<path class="line" d="M650,184 L650,218" marker-end="url(#a)"/>
+<path class="line" d="M650,246 L650,300" marker-end="url(#a)"/>
+<text class="label" x="658" y="278" text-anchor="start">list · thumb · full · file · unfile · trash · renameFolder</text>
+<rect class="helper" x="340" y="300" width="600" height="96" rx="10"/>
+<text class="h" x="354" y="322" text-anchor="start">图片整理本机助手</text>
+<text class="t" x="354" y="341" text-anchor="start">Swift 程序，用 macOS ImageIO · 只在图库或小窗口需要时运行</text>
+<text class="t" x="354" y="358" text-anchor="start">resolve() 只允许它碰“下载”和图片库</text>
+<text class="s" x="354" y="375" text-anchor="start">settings.json：图片库的位置</text>
+<rect class="box" x="20" y="300" width="280" height="140" rx="10"/>
+<text class="h" x="34" y="322" text-anchor="start">基本原则</text>
+<text class="t" x="34" y="341" text-anchor="start">不发任何网络请求</text>
+<text class="t" x="34" y="358" text-anchor="start">从不直接删除：只进废纸篓</text>
+<text class="t" x="34" y="375" text-anchor="start">跨硬盘复制要校验</text>
+<text class="t" x="34" y="392" text-anchor="start">（大小 + SHA-256）</text>
+<text class="t" x="34" y="409" text-anchor="start">只存你看得到的内容</text>
+<rect class="disk" x="340" y="470" width="250" height="100" rx="10"/>
+<text class="h" x="354" y="492" text-anchor="start">~/Downloads（下载）</text>
+<text class="t" x="354" y="511" text-anchor="start">收件箱：待整理</text>
+<text class="s" x="354" y="528" text-anchor="start">只看图片</text>
+<rect class="disk" x="690" y="470" width="250" height="100" rx="10"/>
+<text class="h" x="704" y="492" text-anchor="start">图片库</text>
+<text class="t" x="704" y="511" text-anchor="start">如 /Volumes/ssd2/图片库/</text>
+<text class="t" x="704" y="528" text-anchor="start">&lt;分类&gt;/ 文件夹</text>
+<text class="s" x="704" y="545" text-anchor="start">.image-organizer.json 索引</text>
+<path class="line gray" d="M465,396 L465,470" marker-start="url(#g)" marker-end="url(#g)"/>
+<path class="line gray" d="M815,396 L815,470" marker-start="url(#g)" marker-end="url(#g)"/>
+<path class="line" d="M590,520 L690,520" marker-end="url(#a)"/>
+<text class="label" x="640" y="508" text-anchor="middle">归类</text>
+<text class="s" x="640" y="540" text-anchor="middle">标签 + 注释</text>
+</svg>

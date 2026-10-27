@@ -59,7 +59,7 @@ export class Grid {
     let y = 8;
     for (const section of this.sections) {
       if (section.title) {
-        this.headers.push({ top: y, title: section.title, key: `h:${y}` });
+        this.headers.push({ top: y, title: section.title, key: `h:${y}`, section });
         y += HEADER;
       }
       let row = [];
@@ -122,8 +122,21 @@ export class Grid {
     const el = document.createElement('h2');
     el.className = 'section-title';
     el.style.top = `${h.top}px`;
-    el.textContent = h.title;
+    el.dataset.key = h.key;
+    const title = document.createElement('span');
+    title.textContent = h.title;
+    // Select or deselect the whole section, like Photos. / 选中或取消整段，和“照片”一样。
+    const pick = document.createElement('button');
+    pick.type = 'button';
+    pick.className = 'section-select';
+    pick.onclick = () => this.toggleSection(h.section);
+    el.append(title, pick);
+    this.labelHeader(el, h);
     return el;
+  }
+
+  labelHeader(el, h) {
+    el.querySelector('.section-select').textContent = this.allSelected(h.section.tiles) ? t('selection.sectionNone') : t('selection.section');
   }
 
   tileNode(cell, row) {
@@ -177,6 +190,10 @@ export class Grid {
 
   refreshSelection() {
     for (const [key, node] of this.nodes) node.classList?.toggle('selected', this.selected.has(key));
+    for (const h of this.headers) {
+      const node = this.nodes.get(h.key);
+      if (node) this.labelHeader(node, h);
+    }
     document.body.classList.toggle('selecting', this.selected.size > 0);
     this.hooks.selectionChanged();
   }
@@ -193,6 +210,23 @@ export class Grid {
 
   selectAll() {
     this.flat.forEach(x => this.selected.add(x.key));
+    this.refreshSelection();
+  }
+
+  /** Whether every one of these tiles (default: all) is selected. / 这些图（默认全部）是否都已选中。 */
+  allSelected(tiles = this.flat) {
+    return tiles.length > 0 && tiles.every(x => this.selected.has(x.key));
+  }
+
+  /** Select all, or deselect all when everything is already selected. / 全选；已经全选时取消全选。 */
+  toggleAll() {
+    if (this.allSelected()) this.clearSelection();
+    else this.selectAll();
+  }
+
+  toggleSection(section) {
+    const on = !this.allSelected(section.tiles);
+    for (const x of section.tiles) on ? this.selected.add(x.key) : this.selected.delete(x.key);
     this.refreshSelection();
   }
 

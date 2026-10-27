@@ -1,0 +1,29 @@
+/* Toolbar popup: the pictures on the current page, pick some, save them into a category.
+   工具栏小窗口：当前网页上的图片，选几张，存进一个分类。 */
+html, body.popup { height: auto; }
+body.popup { width: 420px; min-height: 180px; overflow: hidden; background: var(--bg); }
+.p-head { display: flex; align-items: center; gap: 10px; padding: 12px 14px 8px; }
+.p-titles { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.p-titles strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 14px; }
+.p-tools { display: flex; align-items: center; justify-content: space-between; padding: 0 10px 6px; }
+.p-small { display: flex; align-items: center; gap: 6px; color: var(--text-2); font-size: 12px; }
+.p-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; max-height: 380px; overflow-y: auto; padding: 0 10px 10px; }
+.p-grid:empty { display: none; }
+.p-tile { position: relative; aspect-ratio: 1; padding: 0; overflow: hidden; border: 0; border-radius: 6px; background: var(--tile); }
+.p-tile img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.p-tile .p-check {
+  position: absolute; top: 5px; left: 5px; width: 20px; height: 20px; border: 1.5px solid #fff; border-radius: 50%;
+  background: rgba(0, 0, 0, 0.18); box-shadow: 0 0 2px rgba(0, 0, 0, 0.4);
+}
+.p-tile.on { outline: 3px solid var(--accent); outline-offset: -3px; }
+.p-tile.on .p-check { border-color: var(--accent); background: var(--accent); }
+.p-tile.on .p-check::after { content: ""; position: absolute; left: 6px; top: 2px; width: 5px; height: 10px; border: solid #fff; border-width: 0 2px 2px 0; transform: rotate(45deg); }
+.p-size { position: absolute; right: 4px; bottom: 4px; padding: 0 4px; border-radius: 4px; background: rgba(0, 0, 0, 0.5); color: #fff; font-size: 10px; line-height: 16px; }
+.p-state { position: absolute; inset: 0; display: grid; place-items: center; background: rgba(0, 0, 0, 0.45); color: #fff; font-size: 11px; font-weight: 600; text-align: center; padding: 4px; }
+.p-state.done { background: rgba(52, 199, 89, 0.55); }
+.p-state.fail { background: rgba(255, 59, 48, 0.6); }
+.p-note { margin: 0; padding: 4px 14px 12px; color: var(--text-2); font-size: 12.5px; line-height: 1.5; }
+.p-foot { display: flex; gap: 8px; padding: 10px 14px 12px; border-top: 1px solid var(--line); }
+.p-foot .select { flex: 1; min-width: 0; }
+.p-note .p-view { display: inline-flex; margin-left: 6px; vertical-align: baseline; }
+.p-note { word-break: break-all; }

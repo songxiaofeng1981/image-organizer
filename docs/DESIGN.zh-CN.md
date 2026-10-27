@@ -12,12 +12,18 @@
 
 ## 2. 结构
 
+![整体架构](images/architecture.zh-CN.svg)
+
+![模块图](images/modules.zh-CN.svg)
+
 ```
 extension/  （Chrome 页面，纯 ES 模块，不需要构建）
-  gallery.html, gallery.css
-  js/main.js      把各部分连起来：侧边栏、工具栏、操作、键盘
+  gallery.html, gallery.css, popup.html, popup.css
+  js/main.js      图库：把各部分连起来，侧边栏、工具栏、操作、键盘
+  js/popup.js     工具栏小窗口：当前网页上的图片，存进分类
+  js/collect.js   在网页里运行：collectImages、fetchImage（不引用别的模块）
   js/library.js   筛选、排序、侧边栏筛选、组、日期分段
-  js/grid.js      等高行排列、虚拟滚动、选择
+  js/grid.js      等高行排列、虚拟滚动、选择（全选、按日期分段选）
   js/viewer.js    大图查看：切换、缩放、胶片栏、信息面板
   js/images.js    缩略图队列和 blob URL 缓存
   js/store.js     分类、组、偏好设置，存在 chrome.storage.local
@@ -25,6 +31,7 @@ extension/  （Chrome 页面，纯 ES 模块，不需要构建）
   js/i18n.js      中英文界面文字
   js/ui.js        图标、菜单、提示条、命名对话框
 helper/ImageOrganizerHelper.swift   （单个文件，只用 Foundation 和 ImageIO）
+dev/make_diagrams.py                画出上面两张图
 ```
 
 ## 3. 关键决定

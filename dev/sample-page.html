@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Autumn kitchen ideas</title>
+  <link rel="stylesheet" href="/__dev/sample-page.css">
+</head>
+<body>
+  <!-- A web page with the usual ways pictures appear, for testing the toolbar popup (dev/serve.py).
+       一个包含常见图片写法的网页，用来测试工具栏小窗口。 -->
+  <header><img src="/__samples/site/favicon.png" width="32" height="32" alt="logo"> Autumn kitchen ideas</header>
+  <p>srcset (the largest candidate should be taken):</p>
+  <img src="/__samples/wallpaper.jpg" srcset="/__samples/wallpaper.jpg 640w, /__samples/DSC_0042.jpg 1200w" sizes="320px" alt="srcset">
+  <p>picture with sources:</p>
+  <picture>
+    <source srcset="/__samples/Travel/kyoto_01.jpg 1x, /__samples/Travel/kyoto_02.jpg 2x">
+    <img src="/__samples/Travel/kyoto_01.jpg" alt="picture">
+  </picture>
+  <p>plain, lazy, linked:</p>
+  <img src="/__samples/IMG_3988.jpeg" alt="plain">
+  <img src="/__samples/chart.png" loading="lazy" alt="lazy">
+  <a href="/__samples/Design/poster_final.png">poster (link)</a>
+  <div class="hero"></div>
+  <img src="/__samples/site/icon-64.png" alt="small icon">
+  <p>the same picture at two sizes (one tile, the larger):</p>
+  <img src="/__samples/cdn/236x/8c3f2a9d41e07b65.jpg" alt="small copy">
+  <img src="/__samples/cdn/1200x/8c3f2a9d41e07b65.jpg" alt="large copy">
+</body>
+</html>

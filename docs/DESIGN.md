@@ -12,12 +12,18 @@ Since 2.3, Downloads is only the inbox ("To Sort"). Filing a picture **moves it 
 
 ## 2. Architecture
 
+![Architecture](images/architecture.svg)
+
+![Modules](images/modules.svg)
+
 ```
-extension/  (Chrome page, plain ES modules, no build step)
-  gallery.html, gallery.css
-  js/main.js      wiring: sidebar, toolbar, actions, keyboard
+extension/  (Chrome pages, plain ES modules, no build step)
+  gallery.html, gallery.css, popup.html, popup.css
+  js/main.js      gallery wiring: sidebar, toolbar, actions, keyboard
+  js/popup.js     toolbar popup: the pictures on the current page, save into a category
+  js/collect.js   runs inside the web page: collectImages, fetchImage (no imports)
   js/library.js   filtering, sorting, sidebar filters, groups, date sections
-  js/grid.js      justified rows, virtual scrolling, selection
+  js/grid.js      justified rows, virtual scrolling, selection (all, per date section)
   js/viewer.js    large viewer: navigation, zoom, film strip, info panel
   js/images.js    thumbnail queue and blob URL cache
   js/store.js     categories, groups, preferences in chrome.storage.local
@@ -25,6 +31,7 @@ extension/  (Chrome page, plain ES modules, no build step)
   js/i18n.js      English and Chinese text
   js/ui.js        icons, menus, toast, name dialog
 helper/ImageOrganizerHelper.swift   (one file, Foundation + ImageIO only)
+dev/make_diagrams.py                draws the two diagrams above
 ```
 
 ## 3. Key decisions

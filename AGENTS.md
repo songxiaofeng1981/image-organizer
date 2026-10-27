@@ -32,9 +32,12 @@ extension/            plain HTML/CSS/ES modules, no build step
   js/library.js       views (inbox / all / cat: / f: …), smart categories, groups, sorting
   js/store.js         io:v2 storage; categoryOf(): library pictures → category by folder name
   js/host.js          Native Messaging client; MIN_HELPER_VERSION
+  js/popup.js         toolbar popup (2.4): this page's pictures → helper `save`
+  js/collect.js       runs inside the web page (chrome.scripting): collectImages, fetchImage; no imports
   js/i18n.js          every UI string, en + zh
 helper/ImageOrganizerHelper.swift   one file; resolve() is the path gate; "lib:" paths = library
-dev/                  serve.py + chrome-shim.js (run the page in a normal tab), protocol_test.py, make_samples.py
+dev/                  serve.py + chrome-shim.js (run the page in a normal tab), protocol_test.py, make_samples.py,
+                      make_diagrams.py (docs/images/architecture*.svg, modules*.svg)
 scripts/package.sh    release zip (universal helper)
 ```
 
@@ -69,6 +72,10 @@ settings go to `/tmp/io-samples-config`, never the real ones. Dev storage is the
 3. Push and `gh release create` **only after Song confirms in chat.** Then check `releases/latest/download/…` with curl.
 4. Song loads the extension from `~/Chrome插件/图片整理`: after installing the helper (`bash install.sh`),
    copy `extension/` there, update the version in `~/Chrome插件/加载清单.txt`, and tell Song to click reload (↻), never "Remove".
+   Check where Chrome really loads it first (`extensions.settings.<id>.path` in Chrome's `Default/Secure Preferences`):
+   in Oct 2026 it was still `~/Applications/Image Organizer/extension`, so copy there too.
+5. Between releases, bump the fourth number (`2.4.0.1`, `2.4.0.2` …) each time Song tests a build, so the version in
+   `chrome://extensions` and the gallery's sidebar shows which build is loaded. Set it back to `X.Y.Z` for the release.
 
 More lessons and the shared approach for Song's Mac extensions: the `song-mac-chrome-extension` skill
 (`~/.local/share/video-ai-tools/skills/song-mac-chrome-extension/SKILL.md`).

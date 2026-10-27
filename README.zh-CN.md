@@ -80,18 +80,15 @@
 
 ## 工作原理
 
-```
-Chrome 标签页（插件页面：HTML、CSS、JavaScript 模块，不需要构建）
-   │  Chrome Native Messaging（通过 stdin/stdout 传 JSON）
-   ▼
-本机助手 Image Organizer Helper（Swift + macOS ImageIO；随标签页启动和退出）
-   │  列出 · 缩略图 · 原图 · 收入图片库 · 移到废纸篓 · 在访达中显示
-   ▼
-~/Downloads（收件箱）  ──归类──▶  你的图片库，例如 /Volumes/ssd2/图片库/<分类>/
-（只处理图片）
-```
+![整体架构：网页、Chrome 插件（工具栏小窗口和图库）、本机助手、“下载”和图片库](docs/images/architecture.zh-CN.svg)
 
-Chrome 插件本身无法读取“下载”文件夹，macOS 也用单独的权限保护“下载”。所以由一个很小的助手程序负责文件操作，并向 macOS 申请一次权限。细节和消息协议见 [docs/DESIGN.zh-CN.md](docs/DESIGN.zh-CN.md)。
+Chrome 插件本身无法读取“下载”文件夹，macOS 也用单独的权限保护“下载”。所以由一个很小的助手程序负责文件操作，并向 macOS 申请一次权限。工具栏小窗口（2.4 开发中）找出你正在看的网页上的图片，在网页里取出图片数据，再由本机助手直接存进分类。细节和消息协议见 [docs/DESIGN.zh-CN.md](docs/DESIGN.zh-CN.md)。
+
+代码分成几个小模块，不需要构建：
+
+![模块图：页面、视图与功能、共用模块、Native Messaging 桥和本机助手的请求](docs/images/modules.zh-CN.svg)
+
+两张图都是 SVG，由 `python3 dev/make_diagrams.py` 画出；结构变了就重新运行。
 
 ## 参与贡献
 

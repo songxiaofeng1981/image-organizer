@@ -1,5 +1,15 @@
 # Changelog / 更新记录
 
+## Unreleased — 2.4 in development / 未发布 — 2.4 开发中
+
+Save pictures from the web page you are viewing straight into a category. Not finished: the capture page and the right-click menu are still to come. / 把正在看的网页上的图片直接存进分类。还没做完：抓取页面和右键菜单还没做。
+
+- **Toolbar popup.** Lists the pictures on the current page (the largest size the page offers, small icons hidden, the same picture at two sizes counted once), and saves the chosen ones into a category. Each picture is fetched inside the page, like the page itself loads it. On X's photo viewer only the post's photos are listed. / **工具栏小窗口。** 列出当前网页上的图片（取网页提供的最大尺寸，隐藏小图标，同一张图的两个尺寸只算一张），把选中的存进分类。每张图都在网页里取数据，和网页自己加载时一样。在 X 的看大图界面只列出帖子本身的图。
+- Gallery: "Select All" next to the view title; "Deselect All" when everything is selected; "Select" / "Deselect" beside each date section. / 图库：视图标题旁有“全选”；全选后可“取消全选”；每个日期分段旁有“选择 / 取消选择”。
+- The gallery reloads the library when it comes back into view, and shows the extension's version in the sidebar. / 图库回到前台时重新读取图片库，侧边栏显示插件版本号。
+- Helper 2.4.0: new `save` request (writes picture bytes into a category, with the same checks, tag, comment and index as filing). / 本机助手 2.4.0：新增 `save` 请求（把图片数据写进分类，校验、标签、注释、索引和归类一样）。
+- Docs: architecture and module diagrams (SVG) in the README and design notes. / 文档：README 和设计说明里加入整体架构图和模块图（SVG）。
+
 ## v2.3.0 — 2026-10-27
 
 Downloads becomes an inbox: filing moves pictures into your own picture library. / “下载”变成收件箱：归类会把图片移进你自己的图片库。

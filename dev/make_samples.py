@@ -111,6 +111,9 @@ def main(out):
         make(f"Video/frame-{i:03d}.png", shape=(640, 360))
     shutil.copy(os.path.join(out, "wallpaper.jpg"), os.path.join(out, "wallpaper (1).jpg"))
     shutil.copy(os.path.join(out, "wallpaper.jpg"), os.path.join(out, "Design/wallpaper copy.jpg"))
+    # The same picture at two sizes on a picture server (like Pinterest's 236x/ and 1200x/) / 图片服务器上同一张图的两个尺寸
+    make("cdn/236x/8c3f2a9d41e07b65.jpg", "jpeg", (236, 354))
+    make("cdn/1200x/8c3f2a9d41e07b65.jpg", "jpeg", (800, 1200))
     for name, shape in [("favicon.png", (32, 32)), ("icon-64.png", (64, 64)), ("logo-CRQNAZ12.png", (400, 120))]:
         make(f"site/{name}", shape=shape)
     with open(os.path.join(out, "logo.svg"), "w") as f:

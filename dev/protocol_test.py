@@ -133,6 +133,23 @@ def library_tests(h, root, lib):
           and open(src, "rb").read() == original and not os.path.exists(moved_shot))
     check("unfile takes off the tag and comment", xattr(src, "com.apple.metadata:_kMDItemUserTags") is None
           and xattr(src, "com.apple.metadata:kMDItemFinderComment") is None)
+    # Saving a picture taken from a web page (bytes from the extension). / 保存从网页取来的图片。
+    png = open(os.path.join(root, "chart.png"), "rb").read()
+    page = ["https://images.example.com/a/chart.png", "https://www.example.com/post/1"]
+    r = h.ask("save", data=base64.b64encode(png).decode(), name="../My: chart?.webp", folder="Pins",
+              tag={"name": "Pins", "color": 3}, comment="From: example.com", **{"from": page + ["javascript:alert(1)"]})
+    saved = os.path.join(lib, r.get("path", "lib:")[4:])
+    check("save writes the picture into the library, named by its real type", r.get("ok") and r["path"].startswith("lib:Pins/")
+          and r["path"].endswith(".png") and open(saved, "rb").read() == png and "/" not in r["path"][9:] and ":" not in r["path"][4:])
+    check("saved picture records where it came from (http only)", xattr(saved, "com.apple.metadata:kMDItemWhereFroms") == page)
+    check("saved picture has tag and comment", xattr(saved, "com.apple.metadata:_kMDItemUserTags") == ["Pins\n3"]
+          and xattr(saved, "com.apple.metadata:kMDItemFinderComment") == "From: example.com")
+    index = json.load(open(os.path.join(lib, ".image-organizer.json")))["files"]
+    check("saved picture is in the index", index.get(r["path"][4:], {}).get("page") == page[-1])
+    r2 = h.ask("save", data=base64.b64encode(png).decode(), name="again.png", folder="Other")
+    check("the same picture is not saved twice", r2.get("duplicate") is True and r2.get("path") == r["path"])
+    check("save refuses data that is not a picture", h.ask("save", data=base64.b64encode(b"<html>hi</html>").decode(), name="x.png", folder="Pins").get("type") == "error")
+    check("save refuses a bad folder", h.ask("save", data=base64.b64encode(png).decode(), name="x.png", folder="../x").get("type") == "error")
     r = h.ask("trash", paths=["lib:Walls/wallpaper.jpg"])
     index = json.load(open(os.path.join(lib, ".image-organizer.json")))["files"]
     check("trash works in the library and forgets the index entry", r.get("trashed") == ["lib:Walls/wallpaper.jpg"] and "Walls/wallpaper.jpg" not in index)

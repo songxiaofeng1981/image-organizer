@@ -1,0 +1,111 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 600" width="960" height="600" role="img" aria-label="Image Organizer architecture">
+<title>Image Organizer architecture</title>
+<style>
+  text { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", "Segoe UI", "Microsoft YaHei", sans-serif; fill: #1d1d1f; }
+  .bg { fill: #ffffff; }
+  .box { fill: #f3f3f5; stroke: #d2d2d7; stroke-width: 1; }
+  .frame { fill: none; stroke: #007aff; stroke-width: 1.5; stroke-dasharray: 6 4; }
+  .accent { fill: #e8f1ff; stroke: #007aff; stroke-width: 1.2; }
+  .helper { fill: #fff4e5; stroke: #ff9500; stroke-width: 1.2; }
+  .disk { fill: #eaf8ee; stroke: #34c759; stroke-width: 1.2; }
+  .page { fill: #ffffff; stroke: #86868b; stroke-width: 1.2; stroke-dasharray: 4 3; }
+  .pill { fill: #ffffff; stroke: #ffcc80; stroke-width: 1; }
+  .title { font-size: 15px; font-weight: 700; }
+  .h { font-size: 13.5px; font-weight: 650; }
+  .t { font-size: 12px; fill: #424245; }
+  .s { font-size: 11px; fill: #6e6e73; }
+  .label { font-size: 11.5px; fill: #0060df; font-weight: 600; }
+  .frame-label { font-size: 12px; fill: #0060df; font-weight: 700; }
+  .line { stroke: #007aff; stroke-width: 1.6; fill: none; }
+  .line.gray { stroke: #86868b; }
+  .arrow { fill: #007aff; }
+  .arrow.gray { fill: #86868b; }
+  @media (prefers-color-scheme: dark) {
+    text { fill: #f5f5f7; }
+    .bg { fill: #1e1e1e; }
+    .box { fill: #2c2c2e; stroke: #48484a; }
+    .accent { fill: #0b2a4d; stroke: #0a84ff; }
+    .helper { fill: #3a2a12; stroke: #ff9f0a; }
+    .disk { fill: #123320; stroke: #30d158; }
+    .page { fill: #1e1e1e; stroke: #8e8e93; }
+    .pill { fill: #2c2c2e; stroke: #8a5a1c; }
+    .frame { stroke: #0a84ff; }
+    .t { fill: #d1d1d6; }
+    .s { fill: #a1a1a6; }
+    .label, .frame-label { fill: #64a8ff; }
+    .line { stroke: #0a84ff; }
+    .line.gray { stroke: #8e8e93; }
+    .arrow { fill: #0a84ff; }
+    .arrow.gray { fill: #8e8e93; }
+  }
+</style>
+<defs>
+  <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path class="arrow" d="M0,0 L10,5 L0,10 z"/>
+  </marker>
+  <marker id="g" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path class="arrow gray" d="M0,0 L10,5 L0,10 z"/>
+  </marker>
+</defs>
+<rect class="bg" width="960" height="600" rx="14"/>
+<text class="title" x="30" y="36" text-anchor="start">Image Organizer architecture</text>
+<rect class="page" x="20" y="80" width="220" height="100" rx="10"/>
+<text class="h" x="34" y="102" text-anchor="start">Web page you are viewing</text>
+<text class="t" x="34" y="121" text-anchor="start">Pinterest, X, Xiaohongshu…</text>
+<text class="t" x="34" y="138" text-anchor="start">as you see it, logged in</text>
+<rect class="frame" x="340" y="52" width="600" height="148" rx="14"/>
+<text class="frame-label" x="356" y="72" text-anchor="start">Chrome extension · plain HTML/CSS/JS modules, no build step</text>
+<rect class="accent" x="356" y="84" width="182" height="100" rx="10"/>
+<text class="h" x="370" y="106" text-anchor="start">Toolbar popup</text>
+<text class="t" x="370" y="125" text-anchor="start">popup.html · popup.js</text>
+<text class="t" x="370" y="142" text-anchor="start">pick pictures on this page</text>
+<text class="s" x="370" y="159" text-anchor="start">save into a category</text>
+<rect class="accent" x="552" y="84" width="196" height="100" rx="10"/>
+<text class="h" x="566" y="106" text-anchor="start">Gallery page</text>
+<text class="t" x="566" y="125" text-anchor="start">gallery.html · main.js</text>
+<text class="t" x="566" y="142" text-anchor="start">To Sort · Library · views</text>
+<text class="s" x="566" y="159" text-anchor="start">file with 1–9, undo</text>
+<rect class="box" x="762" y="84" width="162" height="100" rx="10"/>
+<text class="h" x="776" y="106" text-anchor="start">chrome.storage</text>
+<text class="t" x="776" y="125" text-anchor="start">io:v2</text>
+<text class="t" x="776" y="142" text-anchor="start">categories, colors,</text>
+<text class="s" x="776" y="159" text-anchor="start">groups, preferences</text>
+<path class="line gray" d="M748,134 L762,134" marker-start="url(#g)" marker-end="url(#g)"/>
+<path class="line" d="M356,134 L240,134" marker-start="url(#a)" marker-end="url(#a)"/>
+<text class="label" x="298" y="158" text-anchor="middle">find pictures and</text>
+<text class="label" x="298" y="173" text-anchor="middle">fetch them in the page</text>
+<rect class="box" x="340" y="218" width="600" height="28" rx="8"/>
+<text class="s" x="640" y="236" text-anchor="middle">Native Messaging · JSON over stdin/stdout · replies in 512 KB chunks</text>
+<path class="line" d="M447,184 L447,218" marker-end="url(#a)"/>
+<path class="line" d="M447,246 L447,300" marker-end="url(#a)"/>
+<text class="label" x="455" y="278" text-anchor="start">save</text>
+<path class="line" d="M650,184 L650,218" marker-end="url(#a)"/>
+<path class="line" d="M650,246 L650,300" marker-end="url(#a)"/>
+<text class="label" x="658" y="278" text-anchor="start">list · thumb · full · file · unfile · trash · renameFolder</text>
+<rect class="helper" x="340" y="300" width="600" height="96" rx="10"/>
+<text class="h" x="354" y="322" text-anchor="start">Image Organizer Helper</text>
+<text class="t" x="354" y="341" text-anchor="start">Swift app, macOS ImageIO · runs only while the gallery or popup needs it</text>
+<text class="t" x="354" y="358" text-anchor="start">resolve() lets it touch only Downloads and the picture library</text>
+<text class="s" x="354" y="375" text-anchor="start">settings.json: where the picture library is</text>
+<rect class="box" x="20" y="300" width="280" height="140" rx="10"/>
+<text class="h" x="34" y="322" text-anchor="start">Ground rules</text>
+<text class="t" x="34" y="341" text-anchor="start">No network requests</text>
+<text class="t" x="34" y="358" text-anchor="start">Never deletes: Trash only</text>
+<text class="t" x="34" y="375" text-anchor="start">Checked copy across drives</text>
+<text class="t" x="34" y="392" text-anchor="start">(size + SHA-256)</text>
+<text class="t" x="34" y="409" text-anchor="start">Only what you can see</text>
+<rect class="disk" x="340" y="470" width="250" height="100" rx="10"/>
+<text class="h" x="354" y="492" text-anchor="start">~/Downloads</text>
+<text class="t" x="354" y="511" text-anchor="start">the inbox: To Sort</text>
+<text class="s" x="354" y="528" text-anchor="start">pictures only</text>
+<rect class="disk" x="690" y="470" width="250" height="100" rx="10"/>
+<text class="h" x="704" y="492" text-anchor="start">Picture library</text>
+<text class="t" x="704" y="511" text-anchor="start">e.g. /Volumes/ssd2/Pictures/</text>
+<text class="t" x="704" y="528" text-anchor="start">&lt;category&gt;/ folders</text>
+<text class="s" x="704" y="545" text-anchor="start">.image-organizer.json index</text>
+<path class="line gray" d="M465,396 L465,470" marker-start="url(#g)" marker-end="url(#g)"/>
+<path class="line gray" d="M815,396 L815,470" marker-start="url(#g)" marker-end="url(#g)"/>
+<path class="line" d="M590,520 L690,520" marker-end="url(#a)"/>
+<text class="label" x="640" y="508" text-anchor="middle">file</text>
+<text class="s" x="640" y="540" text-anchor="middle">tag + comment</text>
+</svg>

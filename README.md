@@ -80,18 +80,15 @@ See [Something went wrong?](docs/INSTALL.md#something-went-wrong) in the install
 
 ## How it works
 
-```
-Chrome tab (extension page: HTML, CSS, JavaScript modules, no build step)
-   │  Chrome Native Messaging (JSON over stdin/stdout)
-   ▼
-Image Organizer Helper (Swift, macOS ImageIO; starts with the tab, quits with it)
-   │  list · thumbnail · full image · file into library · move to Trash · show in Finder
-   ▼
-~/Downloads (inbox)  ──file──▶  your picture library, e.g. /Volumes/ssd2/Picture Library/<category>/
-(pictures only)
-```
+![Architecture: the web page, the Chrome extension (toolbar popup and gallery), the helper app, Downloads and the picture library](docs/images/architecture.svg)
 
-A Chrome extension cannot read your Downloads folder by itself, and macOS protects Downloads with its own permission. A tiny helper app does the file work and asks macOS for permission once. Details and the message protocol are in [docs/DESIGN.md](docs/DESIGN.md).
+A Chrome extension cannot read your Downloads folder by itself, and macOS protects Downloads with its own permission. A tiny helper app does the file work and asks macOS for permission once. The toolbar popup (in development for 2.4) finds the pictures on the page you are viewing and fetches them inside that page, then the helper writes them straight into a category. Details and the message protocol are in [docs/DESIGN.md](docs/DESIGN.md).
+
+The code is split into small modules, with no build step:
+
+![Modules: pages, views and features, shared modules, the Native Messaging bridge and the helper's requests](docs/images/modules.svg)
+
+Both diagrams are SVG files drawn by `python3 dev/make_diagrams.py`; run it again when the structure changes.
 
 ## Contributing
 

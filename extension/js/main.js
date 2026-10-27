@@ -61,9 +61,31 @@ async function start() {
   $('#sort').value = data.prefs.sort;
   $('#size').value = data.prefs.rowHeight;
   await scan();
+  openViewFromHash();
 }
 
+/** gallery.html#view=cat:<id> opens that view (the toolbar popup links here after saving). / 用网址里的 #view= 打开指定视图。 */
+function openViewFromHash() {
+  const view = decodeURIComponent(location.hash.match(/^#view=(.+)$/)?.[1] || '');
+  if (view === 'all' || view === 'inbox' || (view.startsWith('cat:') && data.categories.some(c => c.id === view.slice(4)))) setView(view);
+}
+addEventListener('hashchange', openViewFromHash);
+
+// Pictures saved from the toolbar popup (or added in Finder) show up without pressing Scan Again:
+// read the folders again when the popup says so, and when this tab comes back to the front.
+// 工具栏小窗口存的图（或在访达里加的图）不用点“重新扫描”就会出现：小窗口通知时、或切回这个标签页时重新读取。
+let lastScan = 0;
+async function quietRescan() {
+  if (state.busy || pendingTrash || document.body.classList.contains('has-status') || Date.now() - lastScan < 3000) return;
+  lastScan = Date.now();
+  await scan({ keepImages: true });
+}
+chrome.runtime.onMessage?.addListener(message => {
+  if (message?.type === 'library-changed') quietRescan();
+});
+
 async function scan({ keepImages = false } = {}) {
+  lastScan = Date.now();
   if (!keepImages) showStatus('loading');
   try {
     const hello = await host.hello();
@@ -88,6 +110,7 @@ function showStatus(kind, detail = '') {
   document.body.classList.toggle('has-status', !!kind);
   $('#helperDot').className = `helper-dot ${kind ? (kind === 'loading' ? 'busy' : 'bad') : 'ok'}`;
   $('#helperLabel').textContent = kind && kind !== 'loading' ? t('helper.notConnected') : kind === 'loading' ? t('helper.scanning') : t('helper.connected');
+  $('#helperLabel').title = $('#helperLabel').textContent;
   if (!kind) {
     el.hidden = true;
     return;
@@ -174,6 +197,7 @@ function renderHeader() {
   if (group) parts.push(group.manual ? t('group.manual') : t('group.auto'));
   else if (state.result.tiles.length !== n) parts.push(t('count.groups', state.result.tiles.filter(x => x.kind === 'group').length));
   $('#viewSub').textContent = parts.join(' · ');
+  $('#toolAll').hidden = !n;
   const actions = $('#viewActions');
   actions.replaceChildren();
   const add = (label, fn, danger = false) => {
@@ -304,6 +328,7 @@ function renderSelectionBar() {
   document.body.classList.toggle('selecting', n > 0);
   $('#selCount').textContent = t('selection.count', n);
   $('#selGroup').disabled = n < 2;
+  $('#selAll').textContent = grid.allSelected() ? t('selection.none') : t('selection.all');
 }
 
 // ---------- navigation / 切换视图 ----------
@@ -843,7 +868,10 @@ $('#selCategory').onclick = e => menu(categoryItems(selectedPaths()), e.currentT
 $('#selGroup').onclick = makeGroup;
 $('#selTrash').onclick = () => trash(selectedPaths());
 $('#selClear').onclick = () => grid.clearSelection();
-$('#selAll').onclick = () => grid.selectAll();
+$('#selAll').onclick = () => grid.toggleAll();
+$('#toolAll').onclick = () => grid.selectAll();
+// The extension's version, so it is easy to see which build Chrome loaded. / 插件版本号，方便看出 Chrome 加载的是哪个版本。
+$('#appVersion').textContent = `v${chrome.runtime.getManifest().version}`;
 $('#shortcuts').onclick = () => $('#keysDialog').showModal();
 
 document.addEventListener('keydown', e => {
@@ -889,6 +917,7 @@ document.addEventListener('keydown', e => {
 
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'hidden') flushTrash();
+  else quietRescan();
 });
 addEventListener('scroll', closeMenu, true);
 
