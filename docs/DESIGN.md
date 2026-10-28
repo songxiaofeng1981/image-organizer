@@ -30,7 +30,10 @@ extension/  (Chrome pages, plain ES modules, no build step)
   js/host.js      Native Messaging client
   js/i18n.js      English and Chinese text
   js/ui.js        icons, menus, toast, name dialog
-helper/ImageOrganizerHelper.swift   (one file, Foundation + ImageIO only)
+  js/saver.js     saving pictures (popup and right-click menu)
+  js/page.js      file names and comment from the page (pictures and videos)
+  js/video/       saving videos: find.js, fetch.js, save.js, panel.js
+helper/         one program in parts: main.swift, Core, Library, Manage, PictureSave, VideoSave (Foundation + ImageIO only)
 dev/make_diagrams.py                draws the two diagrams above
 ```
 
@@ -155,6 +158,10 @@ Each request is a JSON object with an `id` and an `op`. The helper answers with 
 | `{op: "unfile", items: [{path, removeTag?}]}` | Same shape as `file`; `to` is relative to Downloads |
 | `{op: "renameFolder", from, to, removeTag, tag}` | `{type: "result", ok}`; error `folder_exists` if `to` is taken |
 | `{op: "save", data, name, folder, tag, comment, from: [pictureURL, pageURL]}` | `{type: "result", ok, path, duplicate?}`. `data` is the picture (base64) fetched inside the web page; the type is read from the bytes (`unsupported_type` if it is not a picture); already in the library (same SHA-256) → `duplicate: true`, nothing written. Sets WhereFroms, tag, comment and the index entry. |
+| `{op: "videoBegin", size}` | `{type: "result", ok, token}`. A video arrives in pieces into a hidden `.io-video-<token>.part` in the library. |
+| `{op: "videoChunk", token, offset, data}` | `{type: "result", ok, written}`. `offset` must equal the bytes so far (`out_of_order`); never more than `size` (`size_mismatch`). |
+| `{op: "videoFinish", token, name, folder, tag, comment, from}` | Like `save`: `{path, duplicate?}`; MP4 or QuickTime from the `ftyp` header (`not_a_video`), index entry `kind: "video"`. |
+| `{op: "videoCancel", token}` | `{type: "result", ok}`; the hidden file is removed. |
 | anything wrong | `{type: "error", error}` with a short code such as `invalid_path`, `not_found`, `no_downloads`, `no_library`, `library_offline`, `bad_library`, `invalid_folder` |
 
 An item from `list`: `{path, name, folder, ext, size, added, modified, width, height}`, plus, only when present, `make`, `model`, `screenshot: true`, `frames` (>1), `from` (host names) and `duplicateOf` (path of the original). `path` and `folder` are relative to Downloads, or for library pictures `path` is `lib:` + the path inside the library, and the item also has `library: true`, `filed`, and (from the index) `originalName`; their `added` is the original download time. `width`/`height` take EXIF orientation into account and are 0 when unknown (SVG).

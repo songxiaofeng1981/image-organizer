@@ -58,7 +58,7 @@
 <rect class="accent" x="356" y="84" width="182" height="100" rx="10"/>
 <text class="h" x="370" y="106" text-anchor="start">Popup · right-click</text>
 <text class="t" x="370" y="125" text-anchor="start">popup.js · background.js</text>
-<text class="t" x="370" y="142" text-anchor="start">pick pictures on a page</text>
+<text class="t" x="370" y="142" text-anchor="start">pictures and videos</text>
 <text class="s" x="370" y="159" text-anchor="start">into a category or Downloads</text>
 <rect class="accent" x="552" y="84" width="196" height="100" rx="10"/>
 <text class="h" x="566" y="106" text-anchor="start">Gallery page</text>
@@ -78,7 +78,7 @@
 <text class="s" x="640" y="236" text-anchor="middle">Native Messaging · JSON over stdin/stdout · replies in 512 KB chunks</text>
 <path class="line" d="M447,184 L447,218" marker-end="url(#a)"/>
 <path class="line" d="M447,246 L447,300" marker-end="url(#a)"/>
-<text class="label" x="455" y="278" text-anchor="start">save</text>
+<text class="label" x="455" y="278" text-anchor="start">save · video…</text>
 <text class="s" x="455" y="293" text-anchor="start">no helper: Chrome → Downloads</text>
 <path class="line" d="M650,184 L650,218" marker-end="url(#a)"/>
 <path class="line" d="M650,246 L650,300" marker-end="url(#a)"/>

@@ -1,5 +1,10 @@
 # Changelog / 更新记录
 
+## Unreleased — 2.5 in development / 未发布 — 2.5 开发中
+
+- **Save videos from Xiaohongshu notes and X posts** into a category (minimal flow): the toolbar popup shows "Video on this page" with size, length and file size. The whole MP4 the page describes is fetched inside the page and handed to the helper in 4 MB pieces. Videos sit in the category folder next to the pictures; the gallery does not show them yet. / **把小红书笔记和 X 帖子里的视频存进分类**（最小流程）：工具栏小窗口显示“本页视频”，包括尺寸、时长和文件大小。网页数据里写着的完整 MP4 在网页里取出，每块 4 MB 交给本机助手。视频和图片放在同一个分类文件夹；图库暂时不显示视频。
+- Helper 2.5.0 (needs reinstalling for videos; pictures still work with 2.4): split into parts, one per job (Manage, PictureSave, VideoSave, plus shared Core and Library); new `videoBegin`, `videoChunk`, `videoFinish`, `videoCancel`. / 本机助手 2.5.0（存视频需要重新安装；存图片用 2.4 仍可）：按功能拆成几部分（Manage、PictureSave、VideoSave，以及共用的 Core、Library）；新增 `videoBegin`、`videoChunk`、`videoFinish`、`videoCancel`。
+
 ## v2.4.0 — 2026-10-28
 
 Save pictures from the web page you are viewing straight into a category. / 把正在看的网页上的图片直接存进分类。

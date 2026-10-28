@@ -30,7 +30,10 @@ extension/  （Chrome 页面，纯 ES 模块，不需要构建）
   js/host.js      Native Messaging 通信
   js/i18n.js      中英文界面文字
   js/ui.js        图标、菜单、提示条、命名对话框
-helper/ImageOrganizerHelper.swift   （单个文件，只用 Foundation 和 ImageIO）
+  js/saver.js     保存图片（小窗口和右键菜单）
+  js/page.js      由网页得到文件名和注释（图片和视频共用）
+  js/video/       保存视频：find.js、fetch.js、save.js、panel.js
+helper/         一个程序分成几部分：main.swift、Core、Library、Manage、PictureSave、VideoSave（只用 Foundation 和 ImageIO）
 dev/make_diagrams.py                画出上面两张图
 ```
 
@@ -155,6 +158,10 @@ Chrome 插件不能随意读取本地文件夹。File System Access API 每次�
 | `{op: "unfile", items: [{path, removeTag?}]}` | 格式同 `file`；`to` 相对于“下载” |
 | `{op: "renameFolder", from, to, removeTag, tag}` | `{type: "result", ok}`；`to` 已存在时报错 `folder_exists` |
 | `{op: "save", data, name, folder, tag, comment, from: [图片网址, 网页网址]}` | `{type: "result", ok, path, duplicate?}`。`data` 是在网页里取到的图片（base64）；类型由数据本身判断（不是图片报 `unsupported_type`）；图片库里已有（SHA-256 相同）时返回 `duplicate: true`，不写文件。会写入来源网址、标签、注释和索引。 |
+| `{op: "videoBegin", size}` | `{type: "result", ok, token}`。视频分块写进图片库里隐藏的 `.io-video-<token>.part`。 |
+| `{op: "videoChunk", token, offset, data}` | `{type: "result", ok, written}`。`offset` 必须等于已收到的字节数（否则 `out_of_order`）；总量不能超过 `size`（`size_mismatch`）。 |
+| `{op: "videoFinish", token, name, folder, tag, comment, from}` | 同 `save`：`{path, duplicate?}`；按 `ftyp` 文件头判断 MP4 或 QuickTime（否则 `not_a_video`），索引记录 `kind: "video"`。 |
+| `{op: "videoCancel", token}` | `{type: "result", ok}`；删除隐藏的临时文件。 |
 | 出错 | `{type: "error", error}`，带一个简短代码，如 `invalid_path`、`not_found`、`no_downloads`、`no_library`、`library_offline`、`bad_library`、`invalid_folder` |
 
 `list` 返回的每一项：`{path, name, folder, ext, size, added, modified, width, height}`，以及仅在有值时才带的 `make`、`model`、`screenshot: true`、`frames`（>1）、`from`（域名）和 `duplicateOf`（原件路径）。`path` 和 `folder` 相对于“下载”；图片库里的图，`path` 是 `lib:` 加图片库内的路径，并带有 `library: true`、`filed`，以及（来自索引的）`originalName`，它们的 `added` 是当初的下载时间。`width`/`height` 已考虑 EXIF 方向，未知时为 0（如 SVG）。

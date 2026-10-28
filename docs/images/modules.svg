@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 760" width="960" height="760" role="img" aria-label="Image Organizer modules">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 800" width="960" height="800" role="img" aria-label="Image Organizer modules">
 <title>Image Organizer modules</title>
 <style>
   text { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", "Segoe UI", "Microsoft YaHei", sans-serif; fill: #1d1d1f; }
@@ -47,97 +47,98 @@
     <path class="arrow gray" d="M0,0 L10,5 L0,10 z"/>
   </marker>
 </defs>
-<rect class="bg" width="960" height="760" rx="14"/>
+<rect class="bg" width="960" height="800" rx="14"/>
 <text class="title" x="30" y="36" text-anchor="start">Image Organizer modules</text>
-<text class="frame-label" x="30" y="70" text-anchor="start">Pages (entry points)</text>
-<rect class="accent" x="30" y="82" width="340" height="112" rx="10"/>
-<text class="h" x="44" y="104" text-anchor="start">main.js</text>
-<text class="t" x="44" y="123" text-anchor="start">gallery wiring: sidebar, toolbar,</text>
-<text class="t" x="44" y="140" text-anchor="start">filing, undo, library dialog, keys</text>
-<text class="s" x="44" y="157" text-anchor="start">uses: library · grid · viewer · store</text>
-<text class="s" x="44" y="172" text-anchor="start">images · ui · host · i18n</text>
-<rect class="accent" x="390" y="82" width="330" height="112" rx="10"/>
-<text class="h" x="404" y="104" text-anchor="start">popup.js</text>
-<text class="t" x="404" y="123" text-anchor="start">toolbar popup: list this page's</text>
-<text class="t" x="404" y="140" text-anchor="start">pictures, save the chosen ones</text>
-<text class="s" x="404" y="157" text-anchor="start">uses: collect · saver · store · i18n</text>
-<rect class="accent" x="740" y="82" width="190" height="112" rx="10"/>
-<text class="h" x="754" y="104" text-anchor="start">background.js</text>
-<text class="t" x="754" y="123" text-anchor="start">right-click menu on pictures:</text>
-<text class="t" x="754" y="140" text-anchor="start">Save to Picture Library ▸</text>
-<text class="s" x="754" y="157" text-anchor="start">uses: saver · store · i18n</text>
-<text class="frame-label" x="30" y="236" text-anchor="start">Views and features</text>
-<rect class="box" x="30" y="248" width="210" height="96" rx="10"/>
-<text class="h" x="44" y="270" text-anchor="start">library.js</text>
-<text class="t" x="44" y="289" text-anchor="start">views, smart categories,</text>
-<text class="t" x="44" y="306" text-anchor="start">groups, sorting</text>
-<text class="s" x="44" y="323" text-anchor="start">uses: store · i18n</text>
-<rect class="box" x="255" y="248" width="210" height="96" rx="10"/>
-<text class="h" x="269" y="270" text-anchor="start">grid.js</text>
-<text class="t" x="269" y="289" text-anchor="start">justified rows, sections,</text>
-<text class="t" x="269" y="306" text-anchor="start">selection, drag box</text>
-<text class="s" x="269" y="323" text-anchor="start">uses: images · ui · i18n</text>
-<rect class="box" x="480" y="248" width="210" height="96" rx="10"/>
-<text class="h" x="494" y="270" text-anchor="start">viewer.js</text>
-<text class="t" x="494" y="289" text-anchor="start">big picture view,</text>
-<text class="t" x="494" y="306" text-anchor="start">info panel</text>
-<text class="s" x="494" y="323" text-anchor="start">uses: images · ui · library</text>
-<rect class="page" x="720" y="248" width="210" height="96" rx="10"/>
-<text class="h" x="734" y="270" text-anchor="start">collect.js</text>
-<text class="t" x="734" y="289" text-anchor="start">runs inside the web page:</text>
-<text class="t" x="734" y="306" text-anchor="start">collectImages, fetchImage</text>
-<text class="s" x="734" y="323" text-anchor="start">no imports</text>
-<text class="frame-label" x="30" y="386" text-anchor="start">Shared modules</text>
-<rect class="box" x="30" y="398" width="168" height="96" rx="10"/>
-<text class="h" x="44" y="420" text-anchor="start">store.js</text>
-<text class="t" x="44" y="439" text-anchor="start">io:v2 storage, migration,</text>
-<text class="t" x="44" y="456" text-anchor="start">category ↔ folder</text>
-<text class="s" x="44" y="473" text-anchor="start">uses: i18n</text>
-<rect class="box" x="210" y="398" width="168" height="96" rx="10"/>
-<text class="h" x="224" y="420" text-anchor="start">saver.js</text>
-<text class="t" x="224" y="439" text-anchor="start">save one picture: into a</text>
-<text class="t" x="224" y="456" text-anchor="start">category or Downloads</text>
-<text class="s" x="224" y="473" text-anchor="start">uses: host · collect · store</text>
-<rect class="box" x="390" y="398" width="168" height="96" rx="10"/>
-<text class="h" x="404" y="420" text-anchor="start">images.js</text>
-<text class="t" x="404" y="439" text-anchor="start">thumbnail queue</text>
-<text class="t" x="404" y="456" text-anchor="start">and cache</text>
-<text class="s" x="404" y="473" text-anchor="start">uses: host</text>
-<rect class="box" x="570" y="398" width="168" height="96" rx="10"/>
-<text class="h" x="584" y="420" text-anchor="start">ui.js</text>
-<text class="t" x="584" y="439" text-anchor="start">icons, menus, toasts,</text>
-<text class="t" x="584" y="456" text-anchor="start">name dialog, color dots</text>
-<text class="s" x="584" y="473" text-anchor="start">uses: i18n</text>
-<rect class="box" x="750" y="398" width="168" height="96" rx="10"/>
-<text class="h" x="764" y="420" text-anchor="start">i18n.js</text>
-<text class="t" x="764" y="439" text-anchor="start">every UI string,</text>
-<text class="t" x="764" y="456" text-anchor="start">English + Chinese</text>
-<text class="frame-label" x="30" y="536" text-anchor="start">Bridge to the Mac</text>
-<rect class="accent" x="30" y="548" width="900" height="50" rx="10"/>
-<text class="h" x="44" y="570" text-anchor="start">host.js</text>
-<text class="t" x="44" y="589" text-anchor="start">Native Messaging client: requests, 512 KB chunks, errors, MIN_HELPER_VERSION check</text>
-<text class="frame-label" x="30" y="640" text-anchor="start">Native helper</text>
-<rect class="helper" x="30" y="652" width="900" height="92" rx="10"/>
-<text class="t" x="44" y="674" text-anchor="start">helper/ImageOrganizerHelper.swift · one file · resolve() checks every path</text>
-<rect class="pill" x="44" y="686" width="208" height="48" rx="8"/>
-<text class="h" x="56" y="706" text-anchor="start">Browse</text>
-<text class="s" x="56" y="724" text-anchor="start">hello · list · thumb · full</text>
-<rect class="pill" x="266" y="686" width="208" height="48" rx="8"/>
-<text class="h" x="278" y="706" text-anchor="start">Picture library</text>
-<text class="s" x="278" y="724" text-anchor="start">config · setLibrary · chooseFolder</text>
-<rect class="pill" x="488" y="686" width="208" height="48" rx="8"/>
-<text class="h" x="500" y="706" text-anchor="start">File</text>
-<text class="s" x="500" y="724" text-anchor="start">file · unfile · save · renameFolder</text>
-<rect class="pill" x="710" y="686" width="208" height="48" rx="8"/>
-<text class="h" x="722" y="706" text-anchor="start">Finder</text>
-<text class="s" x="722" y="724" text-anchor="start">trash · reveal</text>
-<path class="line" d="M200,194 L200,248" marker-end="url(#a)"/>
-<path class="line" d="M310,194 L360,248" marker-end="url(#a)"/>
-<path class="line" d="M350,194 L585,248" marker-end="url(#a)"/>
-<path class="line" d="M600,194 L825,248" marker-end="url(#a)"/>
-<path class="line gray" d="M114,344 L114,398" marker-end="url(#g)"/>
-<path class="line gray" d="M430,344 L430,398" marker-end="url(#g)"/>
-<path class="line" d="M474,494 L474,548" marker-end="url(#a)"/>
-<path class="line" d="M294,494 L294,548" marker-end="url(#a)"/>
-<path class="line" d="M480,598 L480,652" marker-end="url(#a)"/>
+<rect class="frame" x="30" y="52" width="290" height="352" rx="12"/>
+<text class="frame-label" x="44" y="72" text-anchor="start">Manage the gallery</text>
+<rect class="accent" x="42" y="84" width="266" height="56" rx="10"/>
+<text class="h" x="56" y="106" text-anchor="start">main.js</text>
+<text class="t" x="56" y="125" text-anchor="start">gallery wiring: sidebar, filing, undo, keys</text>
+<rect class="box" x="42" y="147" width="266" height="56" rx="10"/>
+<text class="h" x="56" y="169" text-anchor="start">library.js</text>
+<text class="t" x="56" y="188" text-anchor="start">views, smart categories, groups, sorting</text>
+<rect class="box" x="42" y="210" width="266" height="56" rx="10"/>
+<text class="h" x="56" y="232" text-anchor="start">grid.js</text>
+<text class="t" x="56" y="251" text-anchor="start">justified rows, date sections, selection</text>
+<rect class="box" x="42" y="273" width="266" height="56" rx="10"/>
+<text class="h" x="56" y="295" text-anchor="start">viewer.js</text>
+<text class="t" x="56" y="314" text-anchor="start">big picture view, info panel</text>
+<rect class="box" x="42" y="336" width="266" height="56" rx="10"/>
+<text class="h" x="56" y="358" text-anchor="start">images.js</text>
+<text class="t" x="56" y="377" text-anchor="start">thumbnail queue and cache</text>
+<rect class="frame" x="335" y="52" width="290" height="352" rx="12"/>
+<text class="frame-label" x="349" y="72" text-anchor="start">Save pictures from web pages</text>
+<rect class="accent" x="347" y="84" width="266" height="56" rx="10"/>
+<text class="h" x="361" y="106" text-anchor="start">popup.js</text>
+<text class="t" x="361" y="125" text-anchor="start">toolbar popup: pick this page's pictures</text>
+<rect class="accent" x="347" y="147" width="266" height="56" rx="10"/>
+<text class="h" x="361" y="169" text-anchor="start">background.js</text>
+<text class="t" x="361" y="188" text-anchor="start">right-click menu: Save to Picture Library ▸</text>
+<rect class="page" x="347" y="210" width="266" height="56" rx="10"/>
+<text class="h" x="361" y="232" text-anchor="start">collect.js</text>
+<text class="t" x="361" y="251" text-anchor="start">in the page: collectImages, fetchImage</text>
+<rect class="box" x="347" y="273" width="266" height="56" rx="10"/>
+<text class="h" x="361" y="295" text-anchor="start">saver.js</text>
+<text class="t" x="361" y="314" text-anchor="start">into a category, or Downloads without helper</text>
+<rect class="frame" x="640" y="52" width="290" height="352" rx="12"/>
+<text class="frame-label" x="654" y="72" text-anchor="start">Save videos from web pages</text>
+<rect class="accent" x="652" y="84" width="266" height="56" rx="10"/>
+<text class="h" x="666" y="106" text-anchor="start">video/panel.js</text>
+<text class="t" x="666" y="125" text-anchor="start">“Video on this page” rows in the popup</text>
+<rect class="page" x="652" y="147" width="266" height="56" rx="10"/>
+<text class="h" x="666" y="169" text-anchor="start">video/find.js</text>
+<text class="t" x="666" y="188" text-anchor="start">in the page (MAIN): Xiaohongshu and X rules</text>
+<rect class="page" x="652" y="210" width="266" height="56" rx="10"/>
+<text class="h" x="666" y="232" text-anchor="start">video/fetch.js</text>
+<text class="t" x="666" y="251" text-anchor="start">in the page: fetch once, hand out pieces</text>
+<rect class="box" x="652" y="273" width="266" height="56" rx="10"/>
+<text class="h" x="666" y="295" text-anchor="start">video/save.js</text>
+<text class="t" x="666" y="314" text-anchor="start">4 MB pieces to the helper, then finish</text>
+<text class="frame-label" x="30" y="432" text-anchor="start">Shared modules</text>
+<rect class="box" x="30" y="444" width="214" height="56" rx="10"/>
+<text class="h" x="44" y="466" text-anchor="start">store.js</text>
+<text class="t" x="44" y="485" text-anchor="start">io:v2 storage, category ↔ folder</text>
+<rect class="box" x="256" y="444" width="214" height="56" rx="10"/>
+<text class="h" x="270" y="466" text-anchor="start">page.js</text>
+<text class="t" x="270" y="485" text-anchor="start">file names and comment from the page</text>
+<rect class="box" x="482" y="444" width="214" height="56" rx="10"/>
+<text class="h" x="496" y="466" text-anchor="start">ui.js</text>
+<text class="t" x="496" y="485" text-anchor="start">icons, menus, toasts, dialogs</text>
+<rect class="box" x="708" y="444" width="214" height="56" rx="10"/>
+<text class="h" x="722" y="466" text-anchor="start">i18n.js</text>
+<text class="t" x="722" y="485" text-anchor="start">every UI string, English + Chinese</text>
+<path class="line gray" d="M175,404 L175,444" marker-end="url(#g)"/>
+<path class="line gray" d="M480,404 L480,444" marker-end="url(#g)"/>
+<path class="line gray" d="M785,404 L785,444" marker-end="url(#g)"/>
+<rect class="accent" x="30" y="524" width="900" height="50" rx="10"/>
+<text class="h" x="44" y="546" text-anchor="start">host.js</text>
+<text class="t" x="44" y="565" text-anchor="start">Native Messaging bridge: requests, 512 KB reply chunks, errors, version checks</text>
+<text class="frame-label" x="30" y="602" text-anchor="start">Native helper</text>
+<rect class="helper" x="30" y="612" width="900" height="172" rx="12"/>
+<rect class="pill" x="40" y="624" width="270" height="62" rx="8"/>
+<text class="h" x="52" y="646" text-anchor="start">Manage.swift</text>
+<text class="s" x="52" y="664" text-anchor="start">list · thumb · full · trash · reveal</text>
+<text class="s" x="52" y="678" text-anchor="start">file · unfile · renameFolder</text>
+<path class="line" d="M175,574 L175,624" marker-end="url(#a)"/>
+<rect class="pill" x="345" y="624" width="270" height="62" rx="8"/>
+<text class="h" x="357" y="646" text-anchor="start">PictureSave.swift</text>
+<text class="s" x="357" y="664" text-anchor="start">save (one picture, base64)</text>
+<path class="line" d="M480,574 L480,624" marker-end="url(#a)"/>
+<rect class="pill" x="650" y="624" width="270" height="62" rx="8"/>
+<text class="h" x="662" y="646" text-anchor="start">VideoSave.swift</text>
+<text class="s" x="662" y="664" text-anchor="start">videoBegin · videoChunk</text>
+<text class="s" x="662" y="678" text-anchor="start">videoFinish · videoCancel</text>
+<path class="line" d="M785,574 L785,624" marker-end="url(#a)"/>
+<rect class="pill" x="40" y="700" width="280" height="70" rx="8"/>
+<text class="h" x="52" y="722" text-anchor="start">main.swift</text>
+<text class="s" x="52" y="740" text-anchor="start">routes each request to its part,</text>
+<text class="s" x="52" y="756" text-anchor="start">reads messages, runs 4 at a time</text>
+<rect class="pill" x="340" y="700" width="280" height="70" rx="8"/>
+<text class="h" x="352" y="722" text-anchor="start">Core.swift</text>
+<text class="s" x="352" y="740" text-anchor="start">message framing, errors,</text>
+<text class="s" x="352" y="756" text-anchor="start">resolve(): the path gate</text>
+<rect class="pill" x="640" y="700" width="280" height="70" rx="8"/>
+<text class="h" x="652" y="722" text-anchor="start">Library.swift</text>
+<text class="s" x="652" y="740" text-anchor="start">settings, index, tags and comments,</text>
+<text class="s" x="652" y="756" text-anchor="start">checked moves, config · setLibrary</text>
 </svg>

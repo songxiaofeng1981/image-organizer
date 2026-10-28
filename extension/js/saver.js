@@ -7,33 +7,13 @@
 import { host, MIN_HELPER_VERSION, versionAtLeast } from './host.js';
 import { folderOf, finderTag } from './store.js';
 import { fetchImage } from './collect.js';
-import { formatDate } from './library.js';
+import { plainName, pageName, commentFor } from './page.js';
 import { t } from './i18n.js';
 
 const EXT = {
   'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp', 'image/gif': 'gif', 'image/avif': 'avif',
   'image/heic': 'heic', 'image/heif': 'heif', 'image/bmp': 'bmp', 'image/tiff': 'tiff', 'image/svg+xml': 'svg',
 };
-
-/** A file or folder name from a page title: no slashes or other characters Finder or Chrome refuse. / 由网页标题得到的文件名或文件夹名。 */
-export function plainName(text) {
-  return (text || '').replace(/[\\/:*?"<>|~\u0000-\u001f]+/g, ' ').replace(/\s+/g, ' ').replace(/^[.\s]+/, '').trim().slice(0, 60);
-}
-
-/** The page's name for files: its title, or the site's name. / 文件用的网页名：标题，没有就用网站名。 */
-export function pageName(page) {
-  let site = '';
-  try {
-    site = new URL(page.url).hostname.replace(/^www\./, '');
-  } catch {}
-  return plainName(page.title) || plainName(site) || 'image';
-}
-
-/** The Finder comment: page title, address, when it was saved. / 访达注释：网页标题、网址、保存时间。 */
-export function commentFor(page) {
-  const line = (k, v) => t('comment.line', t(k), v);
-  return [line('comment.page', page.title), line('comment.address', page.url), line('comment.filed', formatDate(Date.now()))].join('\n');
-}
 
 /**
  * Whether pictures can go into categories now: the helper is installed and new enough, and the picture library

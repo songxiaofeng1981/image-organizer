@@ -47,10 +47,10 @@ bash install.sh      # builds the helper from source if needed / 需要时会从
 
 Then load `~/Applications/Image Organizer/extension` in `chrome://extensions`. Or, while developing, load the repository's
 `extension/` folder directly so your edits are picked up: click the reload icon on the card, then reload the gallery.
-After changing `helper/ImageOrganizerHelper.swift`, run `bash install.sh` again.
+After changing anything in `helper/` (the `.swift` files), run `bash install.sh` again.
 
 然后在 `chrome://extensions` 里加载 `~/Applications/Image Organizer/extension`。开发时也可以直接加载仓库里的 `extension/`
-文件夹，这样改动会直接生效：点卡片上的刷新图标，再刷新图库页。改了 `helper/ImageOrganizerHelper.swift` 后，请重新运行 `bash install.sh`。
+文件夹，这样改动会直接生效：点卡片上的刷新图标，再刷新图库页。改了 `helper/` 里的 `.swift` 文件后，请重新运行 `bash install.sh`。
 
 ### Making a release / 发布新版本
 

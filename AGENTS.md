@@ -32,10 +32,16 @@ extension/            plain HTML/CSS/ES modules, no build step
   js/library.js       views (inbox / all / cat: / f: …), smart categories, groups, sorting
   js/store.js         io:v2 storage; categoryOf(): library pictures → category by folder name
   js/host.js          Native Messaging client; MIN_HELPER_VERSION
-  js/popup.js         toolbar popup (2.4): this page's pictures → helper `save`
+  js/popup.js         toolbar popup (2.4): this page's pictures → helper `save`; hosts the video rows
   js/collect.js       runs inside the web page (chrome.scripting): collectImages, fetchImage; no imports
+  js/saver.js         saving pictures (category or Downloads), shared by popup and background.js (right-click menu)
+  js/page.js          file names and Finder comment from the page; shared by pictures and videos
+  js/video/           saving videos (2.5): find.js (MAIN world: Xiaohongshu, X rules), fetch.js (isolated world:
+                      fetch once, hand out pieces), save.js (videoBegin/Chunk/Finish), panel.js (popup rows)
   js/i18n.js          every UI string, en + zh
-helper/ImageOrganizerHelper.swift   one file; resolve() is the path gate; "lib:" paths = library
+helper/               one program, one file per part: main.swift (dispatch), Core.swift (framing, errors, resolve()
+                      path gate), Library.swift (settings, index, tags, checked moves), Manage.swift (gallery requests),
+                      PictureSave.swift (`save`), VideoSave.swift (video pieces). "lib:" paths = library
 dev/                  serve.py + chrome-shim.js (run the page in a normal tab), protocol_test.py, make_samples.py,
                       make_diagrams.py (docs/images/architecture*.svg, modules*.svg)
 scripts/package.sh    release zip (universal helper)
@@ -43,6 +49,8 @@ scripts/package.sh    release zip (universal helper)
 
 ## Rules / 规则
 
+- Managing the gallery, saving pictures and saving videos are separate parts, in the extension and in the helper.
+  Don't mix them: shared code goes into Core/Library.swift or host/store/page/i18n.js.
 - No build step; the helper never goes online; the extension fetches only pictures the user picked on a page
   (inside that page first) and sends nothing anywhere; helper stdout is protocol only.
 - Every UI string in `i18n.js`, both languages. Docs: change both language versions.

@@ -6,7 +6,8 @@
 
 import * as store from './js/store.js';
 import { data } from './js/store.js';
-import { libraryStatus, bytesInPage, pageName, saveToCategory, saveToDownloads } from './js/saver.js';
+import { libraryStatus, bytesInPage, saveToCategory, saveToDownloads } from './js/saver.js';
+import { pageName } from './js/page.js';
 import { t } from './js/i18n.js';
 
 const ROOT = 'save';

@@ -79,6 +79,9 @@ function request(op, details = {}) {
   });
 }
 
+/** Any request by name, for parts that keep their own wrappers (js/video/). / 按名字发任意请求，供自带封装的部分（js/video/）使用。 */
+export const call = (op, details) => request(op, details);
+
 export const host = {
   hello: () => request('hello'),
   list: () => request('list'),

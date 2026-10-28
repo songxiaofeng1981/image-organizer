@@ -6,18 +6,20 @@
 set -euo pipefail
 HERE="$(cd "$(dirname "$0")" && pwd)"
 APP="$HERE/build/ImageOrganizerHelper.app"
-SRC="$HERE/ImageOrganizerHelper.swift"
+# One program from several files: main.swift (dispatch), Core, Library, Manage, PictureSave, VideoSave.
+# 一个程序，多个源文件：main.swift（分发）、Core、Library、Manage、PictureSave、VideoSave。
+SRC=("$HERE"/*.swift)
 rm -rf "$APP"
 mkdir -p "$APP/Contents/MacOS"
 cp "$HERE/Info.plist" "$APP/Contents/Info.plist"
 BIN="$APP/Contents/MacOS/image-organizer-helper"
 if [ "${1:-}" = "universal" ]; then
-  swiftc -O -target arm64-apple-macos12 "$SRC" -o "$HERE/build/helper-arm64"
-  swiftc -O -target x86_64-apple-macos12 "$SRC" -o "$HERE/build/helper-x86_64"
+  swiftc -O -target arm64-apple-macos12 "${SRC[@]}" -o "$HERE/build/helper-arm64"
+  swiftc -O -target x86_64-apple-macos12 "${SRC[@]}" -o "$HERE/build/helper-x86_64"
   lipo -create "$HERE/build/helper-arm64" "$HERE/build/helper-x86_64" -output "$BIN"
   rm -f "$HERE/build/helper-arm64" "$HERE/build/helper-x86_64"
 else
-  swiftc -O "$SRC" -o "$BIN"
+  swiftc -O "${SRC[@]}" -o "$BIN"
 fi
 codesign --force --sign - --identifier com.songxiaofeng.imageorganizer.helper "$APP"
 echo "Built / 已编译: $APP"

@@ -104,11 +104,11 @@ TEXT = {
         "web1": ("Pinterest, X, Xiaohongshu…", "as you see it, logged in"),
         "find": ("find and fetch", "in the page"),
         "chrome": "Chrome extension · plain HTML/CSS/JS modules, no build step",
-        "popup": ("Popup · right-click", ("popup.js · background.js", "pick pictures on a page"), ("into a category or Downloads",)),
+        "popup": ("Popup · right-click", ("popup.js · background.js", "pictures and videos"), ("into a category or Downloads",)),
         "gallery": ("Gallery page", ("gallery.html · main.js", "To Sort · Library · views"), ("file with 1–9, undo",)),
         "storage": ("chrome.storage", ("io:v2", "categories, colors,"), ("groups, preferences",)),
         "nm": "Native Messaging · JSON over stdin/stdout · replies in 512 KB chunks",
-        "save": "save",
+        "save": "save · video…",
         "nohelper": "no helper: Chrome → Downloads",
         "ops": "list · thumb · full · file · unfile · trash · renameFolder",
         "helper": ("Image Organizer Helper", ("Swift app, macOS ImageIO · runs only while the gallery or popup needs it",
@@ -120,31 +120,38 @@ TEXT = {
         "library": ("Picture library", ("e.g. /Volumes/ssd2/Pictures/", "<category>/ folders"), (".image-organizer.json index",)),
         "file": ("file", "tag + comment"),
         "mods": "Image Organizer modules",
+        "c_manage": "Manage the gallery",
+        "c_pics": "Save pictures from web pages",
+        "c_video": "Save videos from web pages",
+        "main": ("main.js", ("gallery wiring: sidebar, filing, undo, keys",)),
+        "library_m": ("library.js", ("views, smart categories, groups, sorting",)),
+        "grid": ("grid.js", ("justified rows, date sections, selection",)),
+        "viewer": ("viewer.js", ("big picture view, info panel",)),
+        "images": ("images.js", ("thumbnail queue and cache",)),
+        "popupjs": ("popup.js", ("toolbar popup: pick this page's pictures",)),
+        "bg": ("background.js", ("right-click menu: Save to Picture Library ▸",)),
+        "collect": ("collect.js", ("in the page: collectImages, fetchImage",)),
+        "saver": ("saver.js", ("into a category, or Downloads without helper",)),
+        "v_panel": ("video/panel.js", ("“Video on this page” rows in the popup",)),
+        "v_find": ("video/find.js", ("in the page (MAIN): Xiaohongshu and X rules",)),
+        "v_fetch": ("video/fetch.js", ("in the page: fetch once, hand out pieces",)),
+        "v_save": ("video/save.js", ("4 MB pieces to the helper, then finish",)),
+        "store": ("store.js", ("io:v2 storage, category ↔ folder",)),
+        "page": ("page.js", ("file names and comment from the page",)),
+        "ui": ("ui.js", ("icons, menus, toasts, dialogs",)),
+        "i18n": ("i18n.js", ("every UI string, English + Chinese",)),
+        "host": ("host.js", ("Native Messaging bridge: requests, 512 KB reply chunks, errors, version checks",)),
+        "h_manage": ("Manage.swift", "list · thumb · full · trash · reveal", "file · unfile · renameFolder"),
+        "h_pics": ("PictureSave.swift", "save (one picture, base64)"),
+        "h_video": ("VideoSave.swift", "videoBegin · videoChunk", "videoFinish · videoCancel"),
+        "h_main": ("main.swift", "routes each request to its part,", "reads messages, runs 4 at a time"),
+        "h_core": ("Core.swift", "message framing, errors,", "resolve(): the path gate"),
+        "h_library": ("Library.swift", "settings, index, tags and comments,", "checked moves, config · setLibrary"),
         "l_pages": "Pages (entry points)",
         "l_feat": "Views and features",
         "l_shared": "Shared modules",
         "l_bridge": "Bridge to the Mac",
         "l_helper": "Native helper",
-        "main": ("main.js", ("gallery wiring: sidebar, toolbar,", "filing, undo, library dialog, keys"),
-                 ("uses: library · grid · viewer · store", "images · ui · host · i18n")),
-        "popupjs": ("popup.js", ("toolbar popup: list this page's", "pictures, save the chosen ones"),
-                    ("uses: collect · saver · store · i18n",)),
-        "bg": ("background.js", ("right-click menu on pictures:", "Save to Picture Library ▸"), ("uses: saver · store · i18n",)),
-        "library_m": ("library.js", ("views, smart categories,", "groups, sorting"), ("uses: store · i18n",)),
-        "grid": ("grid.js", ("justified rows, sections,", "selection, drag box"), ("uses: images · ui · i18n",)),
-        "viewer": ("viewer.js", ("big picture view,", "info panel"), ("uses: images · ui · library",)),
-        "collect": ("collect.js", ("runs inside the web page:", "collectImages, fetchImage"), ("no imports",)),
-        "store": ("store.js", ("io:v2 storage, migration,", "category ↔ folder"), ("uses: i18n",)),
-        "saver": ("saver.js", ("save one picture: into a", "category or Downloads"), ("uses: host · collect · store",)),
-        "images": ("images.js", ("thumbnail queue", "and cache"), ("uses: host",)),
-        "ui": ("ui.js", ("icons, menus, toasts,", "name dialog, color dots"), ("uses: i18n",)),
-        "i18n": ("i18n.js", ("every UI string,", "English + Chinese"), ()),
-        "host": ("host.js", ("Native Messaging client: requests, 512 KB chunks, errors, MIN_HELPER_VERSION check",), ()),
-        "swift": "helper/ImageOrganizerHelper.swift · one file · resolve() checks every path",
-        "g_browse": ("Browse", "hello · list · thumb · full"),
-        "g_lib": ("Picture library", "config · setLibrary · chooseFolder"),
-        "g_file": ("File", "file · unfile · save · renameFolder"),
-        "g_finder": ("Finder", "trash · reveal"),
     },
     "zh": {
         "arch": "图片整理 整体架构",
@@ -152,11 +159,11 @@ TEXT = {
         "web1": ("Pinterest、X、小红书……", "登录后你看到的内容"),
         "find": ("在网页里", "找图片、取数据"),
         "chrome": "Chrome 插件 · 纯 HTML/CSS/JS 模块，不需要构建",
-        "popup": ("小窗口 · 右键菜单", ("popup.js · background.js", "挑选网页上的图片"), ("存进分类或“下载”",)),
+        "popup": ("小窗口 · 右键菜单", ("popup.js · background.js", "挑选网页上的图片和视频"), ("存进分类或“下载”",)),
         "gallery": ("图库页面", ("gallery.html · main.js", "待整理 · 图片库 · 各种视图"), ("按 1–9 归类，可撤销",)),
         "storage": ("chrome.storage", ("io:v2", "分类、颜色、"), ("组、偏好设置",)),
         "nm": "Native Messaging · 通过标准输入输出传 JSON · 回复按 512 KB 分块",
-        "save": "save 存图",
+        "save": "save · video… 存图和视频",
         "nohelper": "没有助手时由 Chrome 存到“下载”",
         "ops": "list · thumb · full · file · unfile · trash · renameFolder",
         "helper": ("图片整理本机助手", ("Swift 程序，用 macOS ImageIO · 只在图库或小窗口需要时运行",
@@ -168,31 +175,38 @@ TEXT = {
         "library": ("图片库", ("如 /Volumes/ssd2/图片库/", "<分类>/ 文件夹"), (".image-organizer.json 索引",)),
         "file": ("归类", "标签 + 注释"),
         "mods": "图片整理 模块图",
+        "c_manage": "管理图库",
+        "c_pics": "下载网页图片",
+        "c_video": "下载网页视频",
+        "main": ("main.js", ("图库的连线：侧边栏、归类、撤销、快捷键",)),
+        "library_m": ("library.js", ("视图、智能分类、组、排序",)),
+        "grid": ("grid.js", ("等高行网格、日期分段、选择",)),
+        "viewer": ("viewer.js", ("看大图、信息面板",)),
+        "images": ("images.js", ("缩略图队列和缓存",)),
+        "popupjs": ("popup.js", ("工具栏小窗口：挑选本页图片",)),
+        "bg": ("background.js", ("右键菜单：保存到图片库 ▸",)),
+        "collect": ("collect.js", ("在网页里：collectImages、fetchImage",)),
+        "saver": ("saver.js", ("存进分类；没有助手时存到“下载”",)),
+        "v_panel": ("video/panel.js", ("小窗口里的“本页视频”",)),
+        "v_find": ("video/find.js", ("在网页里（MAIN）：小红书、X 的规则",)),
+        "v_fetch": ("video/fetch.js", ("在网页里：取一次，分块交出",)),
+        "v_save": ("video/save.js", ("每块 4 MB 交给助手，最后收尾",)),
+        "store": ("store.js", ("io:v2 存储、分类 ↔ 文件夹",)),
+        "page": ("page.js", ("由网页得到文件名和注释",)),
+        "ui": ("ui.js", ("图标、菜单、提示条、对话框",)),
+        "i18n": ("i18n.js", ("所有界面文字，英文 + 中文",)),
+        "host": ("host.js", ("Native Messaging 桥：发请求、回复按 512 KB 分块、错误分类、版本检查",)),
+        "h_manage": ("Manage.swift", "list · thumb · full · trash · reveal", "file · unfile · renameFolder"),
+        "h_pics": ("PictureSave.swift", "save（一张图片，base64）"),
+        "h_video": ("VideoSave.swift", "videoBegin · videoChunk", "videoFinish · videoCancel"),
+        "h_main": ("main.swift", "把每个请求交给对应部分，", "读取消息，最多 4 个同时处理"),
+        "h_core": ("Core.swift", "消息收发、错误、", "resolve()：路径把关"),
+        "h_library": ("Library.swift", "设置、索引、标签和注释、", "校验后的移动、config · setLibrary"),
         "l_pages": "页面（入口）",
         "l_feat": "视图与功能",
         "l_shared": "共用模块",
         "l_bridge": "连接 Mac 的桥",
         "l_helper": "本机助手",
-        "main": ("main.js", ("图库的连线：侧边栏、工具栏、", "归类、撤销、图片库对话框、快捷键"),
-                 ("用到：library · grid · viewer · store", "images · ui · host · i18n")),
-        "popupjs": ("popup.js", ("工具栏小窗口：列出本页图片，", "把选中的存进分类或“下载”"),
-                    ("用到：collect · saver · store · i18n",)),
-        "bg": ("background.js", ("图片右键菜单：", "保存到图片库 ▸ 分类"), ("用到：saver · store · i18n",)),
-        "library_m": ("library.js", ("视图、智能分类、", "组、排序"), ("用到：store · i18n",)),
-        "grid": ("grid.js", ("等高行网格、日期分段、", "选择、拖框"), ("用到：images · ui · i18n",)),
-        "viewer": ("viewer.js", ("看大图、", "信息面板"), ("用到：images · ui · library",)),
-        "collect": ("collect.js", ("在网页里运行：", "collectImages、fetchImage"), ("不引用别的模块",)),
-        "store": ("store.js", ("io:v2 存储、旧版迁移、", "分类 ↔ 文件夹"), ("用到：i18n",)),
-        "saver": ("saver.js", ("保存一张图：存进", "分类或“下载”"), ("用到：host · collect · store",)),
-        "images": ("images.js", ("缩略图队列", "和缓存"), ("用到：host",)),
-        "ui": ("ui.js", ("图标、菜单、提示条、", "命名对话框、色点"), ("用到：i18n",)),
-        "i18n": ("i18n.js", ("所有界面文字，", "英文 + 中文"), ()),
-        "host": ("host.js", ("Native Messaging 客户端：发请求、512 KB 分块、错误分类、检查 MIN_HELPER_VERSION",), ()),
-        "swift": "helper/ImageOrganizerHelper.swift · 一个文件 · resolve() 把关所有路径",
-        "g_browse": ("浏览", "hello · list · thumb · full"),
-        "g_lib": ("图片库", "config · setLibrary · chooseFolder"),
-        "g_file": ("归档", "file · unfile · save · renameFolder"),
-        "g_finder": ("访达", "trash · reveal"),
     },
 }
 
@@ -246,51 +260,45 @@ def architecture(T, name):
 
 
 def modules(T, name):
-    s = Svg(960, 760, T["mods"])
+    """Three independent parts side by side (manage, pictures, videos), the shared parts below.
+    三个独立的部分并排（管理、图片、视频），共用部分在下面。"""
+    s = Svg(960, 800, T["mods"])
     s.text(30, 36, T["mods"], "title")
-
-    def layer(y, label):
-        s.text(30, y, label, "frame-label")
-
-    # Pages / 页面
-    layer(70, T["l_pages"])
-    for x, w, key in [(30, 340, "main"), (390, 330, "popupjs"), (740, 190, "bg")]:
-        head, lines, small = T[key]
-        s.box(x, 82, w, 112, "accent", head, lines, small)
-    # Views and features / 视图与功能
-    layer(236, T["l_feat"])
-    xs = [(30, 210, "library_m", "box"), (255, 210, "grid", "box"), (480, 210, "viewer", "box"), (720, 210, "collect", "page")]
-    for x, w, key, kind in xs:
-        head, lines, small = T[key]
-        s.box(x, 248, w, 96, kind, head, lines, small)
-    # Shared / 共用
-    layer(386, T["l_shared"])
-    for i, key in enumerate(["store", "saver", "images", "ui", "i18n"]):
-        head, lines, small = T[key]
-        s.box(30 + i * 180, 398, 168, 96, "box", head, lines, small)
-    # Bridge / 桥
-    layer(536, T["l_bridge"])
-    head, lines, small = T["host"]
-    s.box(30, 548, 900, 50, "accent", head, lines, small)
-    # Helper / 助手
-    layer(640, T["l_helper"])
-    s.parts.append('<rect class="helper" x="30" y="652" width="900" height="92" rx="10"/>')
-    s.text(44, 674, T["swift"], "t")
-    for i, key in enumerate(["g_browse", "g_lib", "g_file", "g_finder"]):
-        x = 44 + i * 222
-        s.parts.append(f'<rect class="pill" x="{x}" y="686" width="208" height="48" rx="8"/>')
-        s.text(x + 12, 706, T[key][0], "h")
-        s.text(x + 12, 724, T[key][1], "s")
-    # Main calls / 主要调用
-    s.arrow([(200, 194), (200, 248)])
-    s.arrow([(310, 194), (360, 248)])
-    s.arrow([(350, 194), (585, 248)])
-    s.arrow([(600, 194), (825, 248)])
-    s.arrow([(114, 344), (114, 398)], gray=True)
-    s.arrow([(430, 344), (430, 398)], gray=True)
-    s.arrow([(474, 494), (474, 548)])
-    s.arrow([(294, 494), (294, 548)])
-    s.arrow([(480, 598), (480, 652)])
+    columns = [(30, 290, "c_manage", ["main", "library_m", "grid", "viewer", "images"]),
+               (335, 290, "c_pics", ["popupjs", "bg", "collect", "saver"]),
+               (640, 290, "c_video", ["v_panel", "v_find", "v_fetch", "v_save"])]
+    for x, w, label, keys in columns:
+        s.parts.append(f'<rect class="frame" x="{x}" y="52" width="{w}" height="352" rx="12"/>')
+        s.text(x + 14, 72, T[label], "frame-label")
+        for i, key in enumerate(keys):
+            head, lines = T[key]
+            kind = "page" if key in ("collect", "v_find", "v_fetch") else "accent" if key in ("main", "popupjs", "bg", "v_panel") else "box"
+            s.box(x + 12, 84 + i * 63, w - 24, 56, kind, head, lines)
+    # Shared extension modules / 插件共用模块
+    s.text(30, 432, T["l_shared"], "frame-label")
+    for i, key in enumerate(["store", "page", "ui", "i18n"]):
+        head, lines = T[key]
+        s.box(30 + i * 226, 444, 214, 56, "box", head, lines)
+    for x, _, _, _ in columns:
+        s.arrow([(x + 145, 404), (x + 145, 444)], gray=True)
+    head, lines = T["host"]
+    s.box(30, 524, 900, 50, "accent", head, lines)
+    # Helper: one part per column, shared parts below / 本机助手：每列一个部分，共用部分在下面
+    s.text(30, 602, T["l_helper"], "frame-label")
+    s.parts.append('<rect class="helper" x="30" y="612" width="900" height="172" rx="12"/>')
+    for (x, w, _, _), key in zip(columns, ["h_manage", "h_pics", "h_video"]):
+        s.parts.append(f'<rect class="pill" x="{x + 10}" y="624" width="{w - 20}" height="62" rx="8"/>')
+        s.text(x + 22, 646, T[key][0], "h")
+        s.text(x + 22, 664, T[key][1], "s")
+        if len(T[key]) > 2:
+            s.text(x + 22, 678, T[key][2], "s")
+        s.arrow([(x + 145, 574), (x + 145, 624)])
+    for i, key in enumerate(["h_main", "h_core", "h_library"]):
+        x = 40 + i * 300
+        s.parts.append(f'<rect class="pill" x="{x}" y="700" width="280" height="70" rx="8"/>')
+        s.text(x + 12, 722, T[key][0], "h")
+        s.text(x + 12, 740, T[key][1], "s")
+        s.text(x + 12, 756, T[key][2], "s")
     s.save(name)
 
 

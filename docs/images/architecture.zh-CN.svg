@@ -58,7 +58,7 @@
 <rect class="accent" x="356" y="84" width="182" height="100" rx="10"/>
 <text class="h" x="370" y="106" text-anchor="start">小窗口 · 右键菜单</text>
 <text class="t" x="370" y="125" text-anchor="start">popup.js · background.js</text>
-<text class="t" x="370" y="142" text-anchor="start">挑选网页上的图片</text>
+<text class="t" x="370" y="142" text-anchor="start">挑选网页上的图片和视频</text>
 <text class="s" x="370" y="159" text-anchor="start">存进分类或“下载”</text>
 <rect class="accent" x="552" y="84" width="196" height="100" rx="10"/>
 <text class="h" x="566" y="106" text-anchor="start">图库页面</text>
@@ -78,7 +78,7 @@
 <text class="s" x="640" y="236" text-anchor="middle">Native Messaging · 通过标准输入输出传 JSON · 回复按 512 KB 分块</text>
 <path class="line" d="M447,184 L447,218" marker-end="url(#a)"/>
 <path class="line" d="M447,246 L447,300" marker-end="url(#a)"/>
-<text class="label" x="455" y="278" text-anchor="start">save 存图</text>
+<text class="label" x="455" y="278" text-anchor="start">save · video… 存图和视频</text>
 <text class="s" x="455" y="293" text-anchor="start">没有助手时由 Chrome 存到“下载”</text>
 <path class="line" d="M650,184 L650,218" marker-end="url(#a)"/>
 <path class="line" d="M650,246 L650,300" marker-end="url(#a)"/>

@@ -155,6 +155,47 @@ def library_tests(h, root, lib):
     check("trash works in the library and forgets the index entry", r.get("trashed") == ["lib:Walls/wallpaper.jpg"] and "Walls/wallpaper.jpg" not in index)
 
 
+def video_tests(h, lib):
+    """Saving a video from a web page, in pieces. / 分块保存网页上的视频。"""
+    video = b"\x00\x00\x00\x18ftypisom\x00\x00\x02\x00isomiso2" + os.urandom(3 * 1024 * 1024)
+    piece = 1024 * 1024
+    page = ["https://video.example.com/v/1.mp4", "https://www.example.com/note/1"]
+
+    def send(data, name="My: clip?", folder="Clips"):
+        token = h.ask("videoBegin", size=len(data)).get("token")
+        for at in range(0, len(data), piece):
+            r = h.ask("videoChunk", token=token, offset=at, data=base64.b64encode(data[at:at + piece]).decode())
+            if r.get("type") == "error":
+                return r
+        return h.ask("videoFinish", token=token, name=name, folder=folder, tag={"name": "Clips", "color": 4},
+                     comment="From: example.com", **{"from": page})
+
+    r = send(video)
+    saved = os.path.join(lib, r.get("path", "lib:")[4:])
+    check("video arrives in pieces and lands in the category as .mp4", r.get("ok") and r["path"].startswith("lib:Clips/")
+          and r["path"].endswith(".mp4") and ":" not in r["path"][4:] and open(saved, "rb").read() == video)
+    index = json.load(open(os.path.join(lib, ".image-organizer.json")))["files"]
+    entry = index.get(r["path"][4:], {})
+    check("saved video has tag, comment, source and an index entry of kind video",
+          xattr(saved, "com.apple.metadata:_kMDItemUserTags") == ["Clips\n4"] and xattr(saved, "com.apple.metadata:kMDItemWhereFroms") == page
+          and entry.get("kind") == "video" and entry.get("size") == len(video))
+    check("the same video is not saved twice", send(video, name="again").get("duplicate") is True)
+    mov = b"\x00\x00\x00\x14ftypqt  \x00\x00\x02\x00qt  " + os.urandom(1000)
+    check("a QuickTime video is saved as .mov", send(mov).get("path", "").endswith(".mov"))
+    check("data that is not a video is refused", send(b"<html>" + os.urandom(2000)).get("error") == "not_a_video")
+    token = h.ask("videoBegin", size=10).get("token")
+    check("a piece in the wrong place is refused", h.ask("videoChunk", token=token, offset=5, data=base64.b64encode(b"12345").decode()).get("error") == "out_of_order")
+    h.ask("videoChunk", token=token, offset=0, data=base64.b64encode(b"12345").decode())
+    check("a video shorter than announced is refused", h.ask("videoFinish", token=token, name="x", folder="Clips").get("error") == "size_mismatch")
+    token = h.ask("videoBegin", size=10).get("token")
+    h.ask("videoChunk", token=token, offset=0, data=base64.b64encode(b"12345").decode())
+    h.ask("videoCancel", token=token)
+    check("cancel leaves no hidden pieces behind", not [n for n in os.listdir(lib) if n.startswith(".io-video-")])
+    check("unknown upload and bad sizes are refused", h.ask("videoChunk", token="nope", offset=0, data="AA==").get("error") == "unknown_upload"
+          and h.ask("videoBegin", size=0).get("error") == "bad_size")
+    check("a video into a bad folder is refused", send(video[:5000], folder="../x").get("type") == "error")
+
+
 def main(root):
     config = root.rstrip("/") + "-config"
     shutil.rmtree(config, ignore_errors=True)
@@ -188,6 +229,7 @@ def main(root):
     shutil.rmtree(root.rstrip("/") + "-library", ignore_errors=True)
     try:
         library_tests(h, root, lib)
+        video_tests(h, lib)
     finally:
         if os.environ.get("IO_TEST_LIBRARY"):
             shutil.rmtree(lib, ignore_errors=True)

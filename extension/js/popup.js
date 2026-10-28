@@ -5,7 +5,9 @@
 import * as store from './store.js';
 import { data, folderOf } from './store.js';
 import { collectImages, fetchImage } from './collect.js';
-import { libraryStatus, bytesInPage, pageName, saveToCategory, saveToDownloads } from './saver.js';
+import { libraryStatus, bytesInPage, saveToCategory, saveToDownloads } from './saver.js';
+import { pageName } from './page.js';
+import { videoPanel } from './video/panel.js';
 import { t, localizePage } from './i18n.js';
 
 const $ = s => document.querySelector(s);
@@ -80,8 +82,9 @@ function render() {
 
 function updateSave() {
   const n = state.picked.size;
-  $('#pSave').textContent = n ? t('popup.saveN', n) : t('popup.save');
-  $('#pSave').disabled = !n || !state.ready || state.busy;
+  const v = videoPanel.picked();
+  $('#pSave').textContent = v ? t('video.saveN', n, v) : n ? t('popup.saveN', n) : t('popup.save');
+  $('#pSave').disabled = !(n || v) || !state.ready || state.busy;
   $('#pDownloads').textContent = n && !state.ready ? t('popup.saveDownloadsN', n) : t('popup.saveDownloads');
   $('#pDownloads').disabled = !n || state.busy;
   $('#pAll').textContent = n && n === shown().length ? t('selection.none') : t('selection.all');
@@ -162,11 +165,15 @@ async function saveChosen(category) {
     }
     state.picked.delete(x.url);
   }
+  // Videos (into categories only) after the pictures. / 图片之后保存视频（只能存进分类）。
+  const videos = category && videoPanel.picked() ? await videoPanel.save(category, state.page) : { saved: 0, already: 0, failed: 0 };
+  already += videos.already;
+  failed += videos.failed;
   const where = category
     ? t('popup.result', saved, category.name, `${state.library}/${folderOf(category.name)}`)
     : t('popup.resultDownloads', saved, `${t('downloads.folder')}/${pageName(state.page)}`);
-  note([saved ? where : '', already ? t('popup.resultAlready', already) : '', failed ? t('popup.resultFailedN', failed) : ''].filter(Boolean).join(' '));
-  if (saved || already) {
+  note([saved ? where : '', videos.saved ? t('video.result', videos.saved, category.name) : '', already ? t('popup.resultAlready', already) : '', failed ? t('popup.resultFailedN', failed) : ''].filter(Boolean).join(' '));
+  if (saved || already || videos.saved) {
     const view = document.createElement('button');
     view.type = 'button';
     view.className = 'button small plain p-view';
@@ -212,7 +219,10 @@ async function start() {
   $('#pTools').hidden = false;
   $('#pFoot').hidden = false;
   render();
-  if (!state.page.images.length) note(t('popup.noPictures'));
+  // Videos are found separately (js/video/); a page may have only a video. / 视频另外查找；网页上可能只有视频。
+  videoPanel.start(state.tab.id, $('#pVideos'), updateSave).then(() => {
+    if (!state.page.images.length && !videoPanel.picked() && $('#pVideos').hidden) note(t('popup.noPictures'));
+  });
 
   // Categories need the helper and a connected picture library; without them only Downloads is offered.
   // 存进分类需要本机助手和已连接的图片库；没有时只提供“存到下载”。
