@@ -1,6 +1,6 @@
-// The "Videos on this page" rows at the top of the toolbar popup (Xiaohongshu and X): size, length, a check box,
+// The "Videos on this page" rows at the top of the toolbar popup (Xiaohongshu, X and Douyin): size, length, a check box,
 // and progress while saving. The popup only asks it how many are picked and tells it when to save.
-// 工具栏小窗口顶部的“本页视频”（小红书和 X）：尺寸、时长、勾选框，保存时显示进度。小窗口只问它选了几个、告诉它何时保存。
+// 工具栏小窗口顶部的“本页视频”（小红书、X 和抖音）：尺寸、时长、勾选框，保存时显示进度。小窗口只问它选了几个、告诉它何时保存。
 
 import { t } from '../i18n.js';
 import { pageName } from '../page.js';

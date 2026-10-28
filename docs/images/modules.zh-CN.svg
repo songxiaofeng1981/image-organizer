@@ -87,7 +87,7 @@
 <text class="t" x="666" y="125" text-anchor="start">小窗口里的“本页视频”</text>
 <rect class="page" x="652" y="147" width="266" height="56" rx="10"/>
 <text class="h" x="666" y="169" text-anchor="start">video/find.js</text>
-<text class="t" x="666" y="188" text-anchor="start">在网页里（MAIN）：小红书、X 的规则</text>
+<text class="t" x="666" y="188" text-anchor="start">网页里（MAIN）：小红书、X、抖音</text>
 <rect class="page" x="652" y="210" width="266" height="56" rx="10"/>
 <text class="h" x="666" y="232" text-anchor="start">video/fetch.js</text>
 <text class="t" x="666" y="251" text-anchor="start">在网页里：取一次，分块交出</text>

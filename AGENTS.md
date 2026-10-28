@@ -36,7 +36,7 @@ extension/            plain HTML/CSS/ES modules, no build step
   js/collect.js       runs inside the web page (chrome.scripting): collectImages, fetchImage; no imports
   js/saver.js         saving pictures (category or Downloads), shared by popup and background.js (right-click menu)
   js/page.js          file names and Finder comment from the page; shared by pictures and videos
-  js/video/           saving videos (2.5): find.js (MAIN world: Xiaohongshu, X rules), fetch.js (isolated world:
+  js/video/           saving videos (2.5): find.js (MAIN world: Xiaohongshu, X, Douyin rules), fetch.js (isolated world:
                       fetch once, hand out pieces), save.js (videoBegin/Chunk/Finish), panel.js (popup rows)
   js/i18n.js          every UI string, en + zh
 helper/               one program, one file per part: main.swift (dispatch), Core.swift (framing, errors, resolve()
