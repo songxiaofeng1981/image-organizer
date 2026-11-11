@@ -138,12 +138,18 @@ function showStatus(kind, detail = '') {
       <ol>${steps.map(s => `<li>${escapeHtml(s)}</li>`).join('')}</ol>
       <div class="status-actions">
         <button type="button" class="button primary" id="retry">${escapeHtml(t('retry'))}</button>
-        <a class="button" href="https://github.com/songxiaofeng1981/image-organizer/blob/main/docs/INSTALL${lang === 'zh' ? '.zh-CN' : ''}.md" target="_blank" rel="noopener">${escapeHtml(t('status.guide'))}</a>
+        ${kind === 'missing' || kind === 'outdated' ? `<a class="button" href="${HELPER_ZIP}">${escapeHtml(t('status.download'))}</a>` : ''}
+        <a class="button" href="${GUIDE_URL}?lang=${lang}" target="_blank" rel="noopener">${escapeHtml(t('status.guide'))}</a>
       </div>
       ${detail ? `<details><summary>${escapeHtml(t('status.details'))}</summary><code>${escapeHtml(detail)}</code></details>` : ''}
     </div>`;
   $('#retry').onclick = () => scan();
 }
+
+// The helper's zip has the same name in every release, so this link always downloads the newest one; the animated
+// guide is docs/guide/ on GitHub Pages. / 本机助手的 zip 每个版本同名，这个链接总是下载最新版；安装演示是 GitHub Pages 上的 docs/guide/。
+const HELPER_ZIP = 'https://github.com/songxiaofeng1981/image-organizer/releases/latest/download/image-organizer.zip';
+const GUIDE_URL = 'https://songxiaofeng1981.github.io/image-organizer/guide/';
 
 const libraryState = r => ({ path: r.library || '', available: !!r.available, suggestions: r.suggestions || [] });
 

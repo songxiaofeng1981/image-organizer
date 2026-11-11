@@ -44,7 +44,10 @@ helper/               one program, one file per part: main.swift (dispatch), Cor
                       Stream.swift (127.0.0.1 server for playing videos in the page), PictureSave.swift (`save`), VideoSave.swift (video pieces). "lib:" paths = library
 dev/                  serve.py + chrome-shim.js (run the page in a normal tab), protocol_test.py, make_samples.py,
                       make_diagrams.py (docs/images/architecture*.svg, modules*.svg)
-scripts/package.sh    release zip (universal helper)
+scripts/package.sh    release zips (universal helper): image-organizer-vX.Y.Z.zip and image-organizer.zip (fixed name for the
+                      gallery's "Download the Helper" link); package-store.sh: Chrome Web Store zip (no `key`). See docs/STORE.md
+docs/guide/           animated install & use guide (GitHub Pages, /docs): index.html, player.js, steps.js + steps2.js, guide.css.
+                      Change the steps when the install flow or the UI they show changes. dev/store_shots.mjs makes store images
 ```
 
 ## Rules / 规则

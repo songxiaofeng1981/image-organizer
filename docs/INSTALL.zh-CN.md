@@ -4,6 +4,8 @@
 
 这份说明不需要任何编程基础。按顺序做就行，大约 5 分钟。
 
+更想看演示？**[▶ 同样的步骤做成了动画](https://songxiaofeng1981.github.io/image-organizer/guide/?lang=zh)**，每一步都能暂停。
+
 **需要：** 一台 macOS 12（Monterey）或更新系统的 Mac，以及 Google Chrome。
 Microsoft Edge、Brave、Arc、Vivaldi 也可以用，步骤相同。
 

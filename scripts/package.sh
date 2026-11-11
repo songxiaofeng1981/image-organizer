@@ -15,4 +15,8 @@ rsync -a --exclude '.DS_Store' "$ROOT/extension/" "$OUT/extension/"
 cp "$ROOT"/{install.sh,uninstall.sh,selftest.sh,README.md,README.zh-CN.md,LICENSE,CHANGELOG.md} "$OUT/"
 cp "$ROOT"/docs/INSTALL*.md "$OUT/docs/"
 (cd "$ROOT/dist" && ditto -c -k --keepParent "$NAME" "$NAME.zip")
-echo "Release zip / 发布包: $OUT.zip"
+# The same zip under a name that never changes, so releases/latest/download/image-organizer.zip (the gallery's
+# "Download the Helper" button) is always the newest. Upload both to the release.
+# 再存一份名字固定的同一个 zip，这样 releases/latest/download/image-organizer.zip（图库里“下载本机助手”按钮）总是最新版。两个都上传到 Release。
+cp "$OUT.zip" "$ROOT/dist/image-organizer.zip"
+echo "Release zips / 发布包: $OUT.zip + $ROOT/dist/image-organizer.zip"

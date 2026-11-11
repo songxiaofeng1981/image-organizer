@@ -4,6 +4,8 @@
 
 This guide assumes no technical background. Follow the steps in order. It takes about 5 minutes.
 
+Prefer to watch? **[▶ The same steps as an animation](https://songxiaofeng1981.github.io/image-organizer/guide/?lang=en)** you can pause at every step.
+
 **You need:** a Mac with macOS 12 (Monterey) or newer, and Google Chrome.
 Microsoft Edge, Brave, Arc and Vivaldi also work; the steps are the same.
 

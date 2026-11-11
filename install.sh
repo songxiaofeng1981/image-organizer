@@ -4,7 +4,10 @@
 set -euo pipefail
 
 HOST_NAME="com.songxiaofeng.imageorganizer"
-EXT_ID="gjmkfcibnihdnoahklpfdjcjekangjhh"
+EXT_ID="gjmkfcibnihdnoahklpfdjcjekangjhh"      # loaded from a folder (Developer mode) / 从文件夹加载（开发者模式）
+# The Chrome Web Store gives the store version its own ID. Fill it in once the store item exists
+# (also in helper/Core.swift, allowedExtensionIDs). / 商店版有自己的 ID，商店条目建好后填在这里（helper/Core.swift 也要填）。
+STORE_ID=""
 HERE="$(cd "$(dirname "$0")" && pwd)"
 SUPPORT="$HOME/Library/Application Support/ImageOrganizer"
 APP="$SUPPORT/ImageOrganizerHelper.app"
@@ -80,10 +83,12 @@ manifest() {
   "description": "Image Organizer helper: reads pictures in Downloads",
   "path": "$APP/Contents/MacOS/image-organizer-helper",
   "type": "stdio",
-  "allowed_origins": ["chrome-extension://$EXT_ID/"]
+  "allowed_origins": [$ORIGINS]
 }
 JSON
 }
+ORIGINS="\"chrome-extension://$EXT_ID/\""
+[ -n "$STORE_ID" ] && ORIGINS="$ORIGINS, \"chrome-extension://$STORE_ID/\""
 AS="$HOME/Library/Application Support"
 registered=0
 for browser in "Google/Chrome" "Google/Chrome Beta" "Google/Chrome Dev" "Google/Chrome Canary" "Chromium" \
@@ -108,8 +113,21 @@ if [ $UPGRADE -eq 1 ]; then
   exit 0
 fi
 
+# Installed the extension from the Chrome Web Store? Then there is nothing left to do in chrome://extensions.
+# 已经从 Chrome 应用商店装了插件？那就不用再去 chrome://extensions 了。
+if [ -n "$STORE_ID" ] && ls -d "$AS"/Google/Chrome/*/Extensions/"$STORE_ID" >/dev/null 2>&1; then
+  say ""
+  say "Done! Go back to the Image Organizer page in Chrome and click Try Again."
+  say "完成！回到 Chrome 里的“图片整理”页面，点“重试”。"
+  say "You can now delete the folder you downloaded. / 现在可以删掉下载的这个文件夹了。"
+  exit 0
+fi
+
 say ""
-say "Done! One last step in Chrome / 完成！最后在 Chrome 里做一步："
+say "Done! Installed Image Organizer from the Chrome Web Store? Go back to its page and click Try Again."
+say "完成！如果你是从 Chrome 应用商店装的插件：回到“图片整理”页面，点“重试”就好。"
+say ""
+say "Not from the store? One last step in Chrome / 不是从商店装的？最后在 Chrome 里做一步："
 say "  1. Open chrome://extensions and turn on Developer mode (top right)."
 say "     打开 chrome://extensions，打开右上角的“开发者模式”。"
 say "  2. Click \"Load unpacked\". In the window that opens, press ⌘⇧G, then ⌘V, then Return, then click Select."

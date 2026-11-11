@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>图片整理 · 安装和使用演示</title>
+<meta name="description" content="一步一步的动画演示：安装图片整理 Chrome 插件和 Mac 本机助手，以及日常怎么用。可以暂停、单步、调速。">
+<link rel="icon" href="icon.png">
+<link rel="stylesheet" href="guide.css">
+</head>
+<body>
+<header class="top">
+  <img src="icon.png" alt="" width="44" height="44">
+  <div class="top-text">
+    <h1 data-t="title"></h1>
+    <p data-t="subtitle"></p>
+  </div>
+  <div class="lang" role="group" aria-label="Language">
+    <button type="button" data-lang="zh">中文</button>
+    <button type="button" data-lang="en">English</button>
+  </div>
+</header>
+
+<main class="layout">
+  <section class="player" aria-label="demo">
+    <div class="stage-box" id="stageBox">
+      <div class="stage" id="stage"></div>
+      <button type="button" class="big-play" id="bigPlay" aria-label="Play"><svg viewBox="0 0 24 24"><path d="M7 4.6v14.8L19.5 12Z"/></svg></button>
+    </div>
+    <div class="caption">
+      <div class="cap-num" id="capNum"></div>
+      <div class="cap-text" id="capText"></div>
+      <div class="cap-tip" id="capTip"></div>
+    </div>
+    <div class="bar" id="bar" role="slider" aria-label="progress" tabindex="0"></div>
+    <div class="controls">
+      <button type="button" class="ctl" id="prev" data-tt="prev"><svg viewBox="0 0 24 24"><path d="M6 5h2v14H6zM20 5v14L9 12z"/></svg></button>
+      <button type="button" class="ctl main" id="play" data-tt="play"><svg viewBox="0 0 24 24" class="i-play"><path d="M7 4.6v14.8L19.5 12Z"/></svg><svg viewBox="0 0 24 24" class="i-pause"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg></button>
+      <button type="button" class="ctl" id="next" data-tt="next"><svg viewBox="0 0 24 24"><path d="M16 5h2v14h-2zM4 5v14l11-7z"/></svg></button>
+      <span class="time" id="time"></span>
+      <span class="grow"></span>
+      <label class="chk"><input type="checkbox" id="pauseEach"><span data-t="pauseEach"></span></label>
+      <select id="speed" class="speed" aria-label="speed">
+        <option value="0.75">0.75×</option>
+        <option value="1" selected>1×</option>
+        <option value="1.25">1.25×</option>
+      </select>
+    </div>
+    <p class="keys" data-t="keys"></p>
+  </section>
+  <aside class="toc" id="toc" aria-label="steps"></aside>
+</main>
+
+<section class="faq">
+  <h2 data-t="faqTitle"></h2>
+  <div id="faq"></div>
+  <p class="more" data-t="more"></p>
+</section>
+
+<script src="steps.js"></script>
+<script src="steps2.js"></script>
+<script src="player.js"></script>
+</body>
+</html>
