@@ -45,7 +45,7 @@
 
 ## 安装
 
-**[▶ 看安装和使用动画](https://songxiaofeng1981.github.io/image-organizer/guide/?lang=zh)**：一步一步演示，可以暂停、单步、调速。
+**[▶ 看安装和使用动画](https://image-organizer.pages.dev/guide/?lang=zh)**：一步一步演示，可以暂停、单步、调速。
 
 不需要编程基础的文字版说明：**[docs/INSTALL.zh-CN.md](docs/INSTALL.zh-CN.md)**。
 

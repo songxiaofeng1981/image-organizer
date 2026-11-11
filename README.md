@@ -45,7 +45,7 @@ Neither helps with the actual job: **go through them quickly, keep what matters,
 
 ## Install
 
-**[▶ Watch the install & use animation](https://songxiaofeng1981.github.io/image-organizer/guide/?lang=en)**: step by step, with pause, single-step and speed controls.
+**[▶ Watch the install & use animation](https://image-organizer.pages.dev/guide/?lang=en)**: step by step, with pause, single-step and speed controls.
 
 Written guide, no coding needed: **[docs/INSTALL.md](docs/INSTALL.md)**.
 

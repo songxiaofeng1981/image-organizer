@@ -24,11 +24,12 @@ import sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 BIN = os.path.join(HERE, "..", "helper", "build", "ImageOrganizerHelper.app", "Contents", "MacOS", "image-organizer-helper")
 ORIGIN = "chrome-extension://gjmkfcibnihdnoahklpfdjcjekangjhh/"
+STORE_ORIGIN = "chrome-extension://ojaefnnfnihdggfmhfnagcaamgjnilni/"  # Chrome Web Store version / 商店版
 
 
 class Helper:
-    def __init__(self, root, config):
-        self.p = subprocess.Popen([BIN, ORIGIN, "--root", root, "--config", config], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+    def __init__(self, root, config, origin=ORIGIN):
+        self.p = subprocess.Popen([BIN, origin, "--root", root, "--config", config], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
         self.n = 0
 
     def ask(self, op, **kw):
@@ -304,6 +305,10 @@ def main(root):
             shutil.rmtree(lib, ignore_errors=True)
     h.p.stdin.close()
     h.p.wait(timeout=5)
+    store = Helper(root, config, STORE_ORIGIN)
+    check("accepts the Chrome Web Store version", store.ask("hello").get("ok") is True)
+    store.p.stdin.close()
+    store.p.wait(timeout=5)
     rejected = subprocess.run([BIN, "chrome-extension://someoneelse/"], input=b"", capture_output=True)
     check("rejects other extensions", rejected.returncode == 2)
     sys.exit(1 if getattr(check, "failed", False) else 0)

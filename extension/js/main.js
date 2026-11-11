@@ -149,7 +149,7 @@ function showStatus(kind, detail = '') {
 // The helper's zip has the same name in every release, so this link always downloads the newest one; the animated
 // guide is docs/guide/ on GitHub Pages. / 本机助手的 zip 每个版本同名，这个链接总是下载最新版；安装演示是 GitHub Pages 上的 docs/guide/。
 const HELPER_ZIP = 'https://github.com/songxiaofeng1981/image-organizer/releases/latest/download/image-organizer.zip';
-const GUIDE_URL = 'https://songxiaofeng1981.github.io/image-organizer/guide/';
+const GUIDE_URL = 'https://image-organizer.pages.dev/guide/';
 
 const libraryState = r => ({ path: r.library || '', available: !!r.available, suggestions: r.suggestions || [] });
 

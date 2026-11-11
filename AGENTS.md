@@ -46,7 +46,7 @@ dev/                  serve.py + chrome-shim.js (run the page in a normal tab), 
                       make_diagrams.py (docs/images/architecture*.svg, modules*.svg)
 scripts/package.sh    release zips (universal helper): image-organizer-vX.Y.Z.zip and image-organizer.zip (fixed name for the
                       gallery's "Download the Helper" link); package-store.sh: Chrome Web Store zip (no `key`). See docs/STORE.md
-docs/guide/           animated install & use guide (GitHub Pages, /docs): index.html, player.js, steps.js + steps2.js, guide.css.
+docs/guide/           animated install & use guide (Cloudflare Pages: scripts/deploy-site.sh → image-organizer.pages.dev/guide/): index.html, player.js, steps.js + steps2.js, guide.css.
                       Change the steps when the install flow or the UI they show changes. dev/store_shots.mjs makes store images
 ```
 

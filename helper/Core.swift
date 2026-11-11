@@ -16,10 +16,10 @@ import Foundation
 import ImageIO
 import UniformTypeIdentifiers
 
-let helperVersion = "2.5.2"
-// The extension loaded from a folder; add the Chrome Web Store ID here once the store item exists (and in install.sh).
-// 从文件夹加载的插件；商店条目建好后，把商店版 ID 也加在这里（install.sh 里也要加）。
-let allowedExtensionIDs: Set<String> = ["gjmkfcibnihdnoahklpfdjcjekangjhh"]
+let helperVersion = "2.5.3"
+// The extension loaded from a folder, and the Chrome Web Store version (also in install.sh's STORE_ID).
+// 从文件夹加载的插件，以及 Chrome 应用商店版（install.sh 的 STORE_ID 里也有）。
+let allowedExtensionIDs: Set<String> = ["gjmkfcibnihdnoahklpfdjcjekangjhh", "ojaefnnfnihdggfmhfnagcaamgjnilni"]
 let allowedExtensions: Set<String> = ["png", "jpg", "jpeg", "gif", "webp", "heic", "heif", "tif", "tiff", "bmp", "avif", "svg", "ico"]
 // Videos are shown and filed alongside the pictures (2.5). / 视频和图片放在一起显示、归类（2.5）。
 let videoExtensions: Set<String> = ["mp4", "mov", "m4v"]

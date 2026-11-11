@@ -7,7 +7,7 @@ HOST_NAME="com.songxiaofeng.imageorganizer"
 EXT_ID="gjmkfcibnihdnoahklpfdjcjekangjhh"      # loaded from a folder (Developer mode) / 从文件夹加载（开发者模式）
 # The Chrome Web Store gives the store version its own ID. Fill it in once the store item exists
 # (also in helper/Core.swift, allowedExtensionIDs). / 商店版有自己的 ID，商店条目建好后填在这里（helper/Core.swift 也要填）。
-STORE_ID=""
+STORE_ID="ojaefnnfnihdggfmhfnagcaamgjnilni"
 HERE="$(cd "$(dirname "$0")" && pwd)"
 SUPPORT="$HOME/Library/Application Support/ImageOrganizer"
 APP="$SUPPORT/ImageOrganizerHelper.app"
