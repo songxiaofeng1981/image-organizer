@@ -2,11 +2,11 @@
 //
 // Chrome starts this program through Native Messaging when the gallery page opens,
 // and it exits when the page closes. It only ever touches image files inside
-// ~/Downloads and in the picture library the user chose: list them, read them, make thumbnails,
-// file them into the library, move them to the Trash.
+// ~/Downloads and in the picture library the user chose (and, since 2.5, video files there too): list them,
+// read them, make thumbnails, file them into the library, move them to the Trash.
 //
 // Chrome 打开图库页时通过 Native Messaging 启动本程序，页面关闭时退出。
-// 它只处理 ~/Downloads 和用户选定的图片库里的图片：列出、读取、生成缩略图、归入图片库、移到废纸篓。
+// 它只处理 ~/Downloads 和用户选定的图片库里的图片（2.5 起也包括视频）：列出、读取、生成缩略图、归入图片库、移到废纸篓。
 
 // Core.swift: shared by every part: constants, errors, Native Messaging framing, the path gate resolve().
 // Core.swift：各部分共用：常量、错误、Native Messaging 收发、路径把关 resolve()。
@@ -16,9 +16,14 @@ import Foundation
 import ImageIO
 import UniformTypeIdentifiers
 
-let helperVersion = "2.5.0"
+let helperVersion = "2.5.2"
 let allowedExtensionIDs: Set<String> = ["gjmkfcibnihdnoahklpfdjcjekangjhh"]
 let allowedExtensions: Set<String> = ["png", "jpg", "jpeg", "gif", "webp", "heic", "heif", "tif", "tiff", "bmp", "avif", "svg", "ico"]
+// Videos are shown and filed alongside the pictures (2.5). / 视频和图片放在一起显示、归类（2.5）。
+let videoExtensions: Set<String> = ["mp4", "mov", "m4v"]
+// Everything the gallery lists and works on: pictures and videos. / 图库列出和处理的文件：图片和视频。
+let mediaExtensions = allowedExtensions.union(videoExtensions)
+func isVideo(_ url: URL) -> Bool { videoExtensions.contains(url.pathExtension.lowercased()) }
 // Folders that hold app or code assets, not the user's pictures.
 // 这些文件夹里是程序或代码的素材，不是用户的图片。
 let ignoredFolderNames: Set<String> = ["node_modules", "venv", "site-packages", "__pycache__", "Pods", "DerivedData", "bower_components"]
@@ -43,7 +48,7 @@ let libPrefix = "lib:"
 
 enum HelperError: Error, CustomStringConvertible {
     case invalidPath, unsupportedType, notAFile, missingRoot, messageTooLarge, cannotDecode, unknownOp
-    case noLibrary, libraryOffline, badLibrary, invalidFolder, folderExists, copyMismatch
+    case noLibrary, libraryOffline, badLibrary, invalidFolder, folderExists, copyMismatch, streamFailed
 
     var description: String {
         switch self {
@@ -60,6 +65,7 @@ enum HelperError: Error, CustomStringConvertible {
         case .invalidFolder: return "invalid_folder"
         case .folderExists: return "folder_exists"
         case .copyMismatch: return "copy_mismatch"
+        case .streamFailed: return "stream_failed"
         }
     }
 }
@@ -107,8 +113,9 @@ func base(of raw: String) throws -> (URL, String) {
 }
 
 /// Turns a page path (relative to Downloads, or "lib:" + relative to the library) into a URL,
-/// refusing anything that could escape it: absolute paths, "..", hidden components, symbolic links and non-image files.
-/// 把页面路径（相对“下载”，或 “lib:” 加相对图片库的路径）变成 URL；拒绝绝对路径、".."、隐藏项、符号链接和非图片文件。
+/// refusing anything that could escape it: absolute paths, "..", hidden components, symbolic links and files that are
+/// neither pictures nor videos.
+/// 把页面路径（相对“下载”，或 “lib:” 加相对图片库的路径）变成 URL；拒绝绝对路径、".."、隐藏项、符号链接和图片、视频以外的文件。
 func resolve(_ raw: String) throws -> URL {
     let (top, rel) = try base(of: raw)
     guard !rel.isEmpty, !rel.hasPrefix("/"), !rel.contains("\\") else { throw HelperError.invalidPath }
@@ -121,7 +128,7 @@ func resolve(_ raw: String) throws -> URL {
         cursor.appendPathComponent(part)
         if (try cursor.resourceValues(forKeys: [.isSymbolicLinkKey])).isSymbolicLink == true { throw HelperError.invalidPath }
     }
-    guard allowedExtensions.contains(candidate.pathExtension.lowercased()) else { throw HelperError.unsupportedType }
+    guard mediaExtensions.contains(candidate.pathExtension.lowercased()) else { throw HelperError.unsupportedType }
     guard (try candidate.resourceValues(forKeys: [.isRegularFileKey])).isRegularFile == true else { throw HelperError.notAFile }
     return candidate
 }

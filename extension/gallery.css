@@ -258,6 +258,9 @@ body.selecting .side-item:has(.side-key) .side-count { display: none; }
   outline: 0;
 }
 .select:hover { background-color: var(--fill-hover); }
+/* “All / Pictures / Videos” while it hides something. / “全部 / 图片 / 视频”菜单正在过滤时。 */
+.select.filtering { background-color: var(--accent-soft); color: var(--accent); }
+.select.filtering:hover { background-color: color-mix(in srgb, var(--accent) 22%, transparent); }
 .zoom { display: flex; align-items: center; gap: 4px; color: var(--text-3); }
 .zoom .icon { width: 13px; height: 13px; }
 .zoom input { width: 90px; accent-color: var(--accent); }
@@ -392,7 +395,7 @@ body.selecting .toolbar-view, body.selecting .toolbar-tools { display: none; }
   font-weight: 600;
   backdrop-filter: blur(8px);
 }
-.stack-count .icon { width: 12px; height: 12px; }
+.stack-count .icon, .tile-badge .icon { width: 12px; height: 12px; }
 .tile-caption {
   position: absolute;
   z-index: 2;
@@ -510,6 +513,27 @@ body.has-status .grid-canvas { display: none; }
 .v-stage { position: absolute; inset: 0; overflow: hidden; }
 .v-stage img { position: absolute; display: block; max-width: none; user-select: none; -webkit-user-drag: none; }
 .v-stage img.loading { filter: blur(6px); }
+.v-stage img[hidden], .v-stage video[hidden] { display: none; }
+.v-stage video { position: absolute; display: block; background: #000; outline: 0; }
+/* While a video plays, the previous / next buttons shrink to their circles so they don't cover its controls.
+   视频播放时，上一张 / 下一张按钮缩小到圆形本身，不挡住播放控制条。 */
+.viewer.is-video .v-nav { top: 50%; bottom: auto; width: auto; height: 120px; transform: translateY(-50%); }
+.v-note {
+  position: absolute;
+  z-index: 3;
+  left: 50%;
+  top: calc(50% + 56px);
+  transform: translateX(-50%);
+  max-width: min(420px, 80%);
+  margin: 0;
+  padding: 6px 12px;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  font-size: 13px;
+  text-align: center;
+}
+.v-note[hidden] { display: none; }
 .viewer.zoomed .v-stage { cursor: grab; }
 .v-stage.dragging { cursor: grabbing !important; }
 .v-stage.failed::after {
@@ -534,6 +558,29 @@ body.has-status .grid-canvas { display: none; }
   display: flex;
   align-items: center;
 }
+/* Play button on a video's frame (it plays in QuickTime Player). / 视频画面上的播放按钮（在 QuickTime Player 里播放）。 */
+.v-play {
+  position: absolute;
+  z-index: 3;
+  left: 50%;
+  top: 50%;
+  display: grid;
+  place-items: center;
+  width: 76px;
+  height: 76px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.45);
+  color: #fff;
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.25);
+  transform: translate(-50%, -50%);
+  transition: transform 0.15s, background-color 0.15s;
+}
+.v-play[hidden] { display: none; }
+.v-play:hover { background: rgba(0, 0, 0, 0.6); transform: translate(-50%, -50%) scale(1.06); }
+.v-play svg { width: 32px; height: 32px; margin-left: 5px; }
 .v-nav.prev { left: 0; justify-content: flex-start; }
 .v-nav.next { right: 0; justify-content: flex-end; }
 .v-nav span {

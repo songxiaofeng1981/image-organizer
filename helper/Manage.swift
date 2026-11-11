@@ -1,7 +1,8 @@
-// Manage.swift: managing pictures in Downloads and the library: list, thumb, full, trash, reveal,
+// Manage.swift: managing pictures and videos in Downloads and the library: list, thumb, full, play, trash, reveal,
 // file, unfile, renameFolder.
-// Manage.swift：管理“下载”和图片库里的图片：list、thumb、full、trash、reveal、file、unfile、renameFolder。
+// Manage.swift：管理“下载”和图片库里的图片和视频：list、thumb、full、play、trash、reveal、file、unfile、renameFolder。
 
+import AVFoundation
 import CryptoKit
 import Foundation
 import ImageIO
@@ -31,6 +32,7 @@ struct Meta {
     var screenshot = false // macOS/iOS marked it as a screen capture / 系统标记的截屏
     var frames = 1         // > 1 for animated GIF/WebP/PNG / 动图的帧数
     var from: [String] = [] // websites it was downloaded from (host names only) / 下载来源网站（只取域名）
+    var duration = 0.0     // videos: length in seconds / 视频时长（秒）
 }
 
 
@@ -44,6 +46,10 @@ func meta(of url: URL, ext: String) -> Meta {
         m.from = hosts
     }
     if let flag = plistAttribute(url, "com.apple.metadata:kMDItemIsScreenCapture") as? Bool { m.screenshot = flag }
+    if videoExtensions.contains(ext) {
+        (m.width, m.height, m.duration) = videoInfo(url)
+        return m
+    }
     guard ext != "svg",
           let source = CGImageSourceCreateWithURL(url as CFURL, [kCGImageSourceShouldCache: false] as CFDictionary),
           CGImageSourceGetCount(source) > 0,
@@ -115,7 +121,7 @@ func scan(_ top: URL, prefix: String) throws -> [Entry] {
             continue
         }
         let ext = url.pathExtension.lowercased()
-        guard values.isSymbolicLink != true, values.isRegularFile == true, allowedExtensions.contains(ext) else { continue }
+        guard values.isSymbolicLink != true, values.isRegularFile == true, mediaExtensions.contains(ext) else { continue }
         let modified = values.contentModificationDate ?? Date(timeIntervalSince1970: 0)
         entries.append(Entry(url: url, relative: prefix + String(url.path.dropFirst(top.path.count + 1)), ext: ext,
                              size: values.fileSize ?? 0,
@@ -151,6 +157,7 @@ func list(id: String) throws {
         if e.meta.screenshot { item["screenshot"] = true }
         if e.meta.frames > 1 { item["frames"] = e.meta.frames }
         if !e.meta.from.isEmpty { item["from"] = e.meta.from }
+        if e.meta.duration > 0 { item["duration"] = (e.meta.duration * 10).rounded() / 10 }
         if !e.duplicateOf.isEmpty { item["duplicateOf"] = e.duplicateOf }
         batch.append(item)
         if batch.count >= 200 {
@@ -186,6 +193,10 @@ func jpeg(_ url: URL, maxPixelSize: Int) throws -> Data {
         image = CGImageSourceCreateThumbnailAtIndex(source, CGImageSourceGetPrimaryImageIndex(source), always as CFDictionary) ?? small
     }
     guard let cg = image else { throw HelperError.cannotDecode }
+    return try encodeJPEG(cg)
+}
+
+func encodeJPEG(_ cg: CGImage) throws -> Data {
     let out = NSMutableData()
     guard let dest = CGImageDestinationCreateWithData(out, UTType.jpeg.identifier as CFString, 1, nil) else { throw HelperError.cannotDecode }
     CGImageDestinationAddImage(dest, cg, [kCGImageDestinationLossyCompressionQuality: 0.84] as CFDictionary)
@@ -193,22 +204,76 @@ func jpeg(_ url: URL, maxPixelSize: Int) throws -> Data {
     return out as Data
 }
 
+// MARK: - Videos / 视频
+
+/// Size as shown (after rotation) and length of a video, read from its header without decoding it.
+/// 视频按显示方向的尺寸和时长，读自文件头，不解码画面。
+func videoInfo(_ url: URL) -> (Int, Int, Double) {
+    let asset = AVURLAsset(url: url)
+    let seconds = CMTimeGetSeconds(asset.duration)
+    let duration = seconds.isFinite && seconds > 0 ? seconds : 0
+    guard let track = asset.tracks(withMediaType: .video).first else { return (0, 0, duration) }
+    let shown = CGRect(origin: .zero, size: track.naturalSize).applying(track.preferredTransform)
+    return (Int(abs(shown.width).rounded()), Int(abs(shown.height).rounded()), duration)
+}
+
+/// One frame of a video as a JPEG (the poster on its tile and in the viewer): about a second in, past fades from black.
+/// 视频的一帧画面（网格和大图里的封面），取约 1 秒处，避开开头的黑场。
+func videoPoster(_ url: URL, maxPixelSize: Int) throws -> Data {
+    let asset = AVURLAsset(url: url)
+    let generator = AVAssetImageGenerator(asset: asset)
+    generator.appliesPreferredTrackTransform = true
+    let side = CGFloat(min(4096, max(128, maxPixelSize)))
+    generator.maximumSize = CGSize(width: side, height: side)
+    // The nearest key frame is good enough and much faster. / 用最近的关键帧即可，快得多。
+    generator.requestedTimeToleranceBefore = CMTime(seconds: 1, preferredTimescale: 600)
+    generator.requestedTimeToleranceAfter = CMTime(seconds: 1, preferredTimescale: 600)
+    let seconds = CMTimeGetSeconds(asset.duration)
+    let at = seconds.isFinite && seconds > 0 ? min(1, seconds / 10) : 0
+    guard let cg = try? generator.copyCGImage(at: CMTime(seconds: at, preferredTimescale: 600), actualTime: nil)
+    else { throw HelperError.cannotDecode }
+    return try encodeJPEG(cg)
+}
+
+/// A downscaled JPEG of a picture, or a video's poster frame. / 图片缩小后的 JPEG，或视频的封面帧。
+func previewJPEG(_ url: URL, maxPixelSize: Int) throws -> Data {
+    isVideo(url) ? try videoPoster(url, maxPixelSize: maxPixelSize) : try jpeg(url, maxPixelSize: maxPixelSize)
+}
+
+/// Opens a video in the Mac's own player (QuickTime Player, or the app the user picked for videos).
+/// 用 Mac 自己的播放器打开视频（QuickTime Player，或用户为视频选定的 App）。
+func play(id: String, path: String) throws {
+    let url = try resolve(path)
+    guard isVideo(url) else { throw HelperError.unsupportedType }
+    let task = Process()
+    task.executableURL = URL(fileURLWithPath: "/usr/bin/open")
+    task.arguments = [url.path]
+    try task.run()
+    try send(["id": id, "type": "result", "ok": true])
+}
+
+// MARK: - Thumbnails and full size / 缩略图和大图
+
 func thumb(id: String, path: String, size: Int) throws {
     let url = try resolve(path)
     if url.pathExtension.lowercased() == "svg" {
         try sendChunks(id: id, data: try Data(contentsOf: url), mime: "image/svg+xml")
     } else {
-        try sendChunks(id: id, data: try jpeg(url, maxPixelSize: size), mime: "image/jpeg")
+        try sendChunks(id: id, data: try previewJPEG(url, maxPixelSize: size), mime: "image/jpeg")
     }
 }
 
 /// Full-size image for the viewer. Formats Chrome can show are sent as-is; HEIC and TIFF
-/// are converted to JPEG in memory. The original file is never changed.
-/// 大图查看用。Chrome 能直接显示的格式原样发送；HEIC、TIFF 在内存里转成 JPEG，不改原文件。
+/// are converted to JPEG in memory. A video gets a large poster frame; it plays in QuickTime Player (`play`).
+/// The original file is never changed.
+/// 大图查看用。Chrome 能直接显示的格式原样发送；HEIC、TIFF 在内存里转成 JPEG；视频给一张大的封面帧，播放交给
+/// QuickTime Player（`play`）。不改原文件。
 func full(id: String, path: String) throws {
     let url = try resolve(path)
     let ext = url.pathExtension.lowercased()
-    if let mime = mimeTypes[ext] {
+    if isVideo(url) {
+        try sendChunks(id: id, data: try videoPoster(url, maxPixelSize: 2048), mime: "image/jpeg")
+    } else if let mime = mimeTypes[ext] {
         try sendChunks(id: id, data: try Data(contentsOf: url, options: .mappedIfSafe), mime: mime)
     } else {
         try sendChunks(id: id, data: try jpeg(url, maxPixelSize: 4096), mime: "image/jpeg")
@@ -337,7 +402,7 @@ func unfile(id: String, items: [[String: Any]]) throws {
                 if !parent.contains(".."), fm.fileExists(atPath: candidate.path, isDirectory: &isDir), isDir.boolValue { folder = candidate }
                 name = (original as NSString).lastPathComponent
             }
-            if name.hasPrefix(".") || !allowedExtensions.contains((name as NSString).pathExtension.lowercased()) { name = src.lastPathComponent }
+            if name.hasPrefix(".") || !mediaExtensions.contains((name as NSString).pathExtension.lowercased()) { name = src.lastPathComponent }
             let dest = freeURL(in: folder, name: name)
             retag(src, remove: item["removeTag"] as? String, add: nil)
             setPlistAttribute(src, commentAttribute, nil)
@@ -374,7 +439,7 @@ func renameFolder(id: String, from rawFrom: String, to rawTo: String, removeTag:
     }
     if let walker = fm.enumerator(at: dest, includingPropertiesForKeys: [.isRegularFileKey], options: [.skipsHiddenFiles]) {
         while let url = walker.nextObject() as? URL {
-            if allowedExtensions.contains(url.pathExtension.lowercased()) { retag(url, remove: removeTag, add: tag) }
+            if mediaExtensions.contains(url.pathExtension.lowercased()) { retag(url, remove: removeTag, add: tag) }
         }
     }
     if fromName != toName {

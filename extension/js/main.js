@@ -42,6 +42,13 @@ const viewer = new Viewer($('#viewer'), {
   },
   trash: path => trash([path]),
   reveal: path => host.reveal(path).catch(showError),
+  play: path => host.play(path).catch(showError),
+  playURL: path => host.playURL(path),
+  volume: () => ({ volume: Number(data.prefs.volume), muted: !!data.prefs.muted }),
+  setVolume: ({ volume, muted }) => {
+    store.setPref('volume', volume);
+    store.setPref('muted', muted);
+  },
   remaining: () => (state.view === 'inbox' ? state.result.items.length : null),
   infoOpen: () => data.prefs.infoOpen,
   setInfoOpen: open => store.setPref('infoOpen', open),
@@ -59,6 +66,8 @@ async function start() {
   fillIcons();
   await store.load();
   $('#sort').value = data.prefs.sort;
+  $('#kind').value = data.prefs.kind;
+  paintKind();
   $('#size').value = data.prefs.rowHeight;
   await scan();
   openViewFromHash();
@@ -157,6 +166,7 @@ function refresh({ keepScroll = true } = {}) {
     view: state.view,
     search: state.search,
     sort: data.prefs.sort,
+    kind: data.prefs.kind,
     hidden: state.hidden,
   });
   // The group fell apart (pictures moved to the Trash, or ungrouped): go back. / 组已不存在，返回上一视图。
@@ -193,7 +203,12 @@ function renderHeader() {
   $('#back').hidden = !isGroup;
   $('#viewTitle').textContent = viewTitle(v);
   const n = state.result.items.length;
-  const parts = [t('count.pictures', n)];
+  const videos = state.result.items.filter(x => x.isVideo).length;
+  // "30 pictures, 2 videos"; just "32 pictures" when there are no videos. / “30 张图片、2 个视频”；没有视频时只写图片数。
+  const counts = [];
+  if (n - videos || !videos) counts.push(t('count.pictures', n - videos));
+  if (videos) counts.push(t('count.videos', videos));
+  const parts = [counts.join(t('count.and'))];
   if (group) parts.push(group.manual ? t('group.manual') : t('group.auto'));
   else if (state.result.tiles.length !== n) parts.push(t('count.groups', state.result.tiles.filter(x => x.kind === 'group').length));
   $('#viewSub').textContent = parts.join(' · ');
@@ -236,6 +251,8 @@ function renderEmpty() {
   const libraryView = v === 'all' || v.startsWith('cat:');
   let key = state.all.length ? 'empty.view' : 'empty.none';
   if (state.search) key = 'empty.search';
+  // Only the “Pictures / Videos” menu hides what is here. / 只是“图片 / 视频”菜单把这里的内容藏起来了。
+  else if (data.prefs.kind !== 'all' && viewCount(state.all.filter(x => !state.hidden.has(x.path)), v)) key = data.prefs.kind === 'videos' ? 'empty.noVideos' : 'empty.noPictures';
   else if (v === 'inbox') key = state.all.length ? 'empty.done' : 'empty.none';
   else if (libraryView && !state.library.path) key = 'empty.noLibrary';
   else if (libraryView && !state.library.available) key = 'empty.offline';
@@ -854,6 +871,15 @@ $('#search').addEventListener('input', e => {
     state.search = e.target.value;
     refresh({ keepScroll: false });
   }, 120);
+});
+/** The “All / Pictures / Videos” menu turns blue while it hides something. / 菜单在过滤时变成蓝色。 */
+function paintKind() {
+  $('#kind').classList.toggle('filtering', data.prefs.kind !== 'all');
+}
+$('#kind').addEventListener('change', e => {
+  store.setPref('kind', e.target.value);
+  paintKind();
+  refresh({ keepScroll: false });
 });
 $('#sort').addEventListener('change', e => {
   store.setPref('sort', e.target.value);

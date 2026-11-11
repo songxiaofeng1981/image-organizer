@@ -5,7 +5,7 @@
 // 与本机助手通信（Chrome Native Messaging）。每个请求带 id，助手用同一个 id 回复一条或多条消息。
 
 export const HOST_NAME = 'com.songxiaofeng.imageorganizer';
-export const MIN_HELPER_VERSION = '2.4.0';
+export const MIN_HELPER_VERSION = '2.5.2';
 
 let port = null;
 let seq = 0;
@@ -89,6 +89,10 @@ export const host = {
   full: path => request('full', { path }),
   trash: paths => request('trash', { paths }),
   reveal: path => request('reveal', { path }),
+  // Helper 2.5.1: opens a video in QuickTime Player. / 助手 2.5.1：用 QuickTime Player 打开视频。
+  play: path => request('play', { path }),
+  // Helper 2.5.2: the 127.0.0.1 address the page plays a video from. / 助手 2.5.2：页面播放视频用的 127.0.0.1 地址。
+  playURL: path => request('playURL', { path }).then(r => r.url),
   // Picture library (helper 2.3). Library paths start with "lib:". / 图片库（助手 2.3）。图片库路径以 "lib:" 开头。
   config: name => request('config', { name }),
   setLibrary: (path, name) => request('setLibrary', { path, name }),

@@ -36,6 +36,11 @@
         </div>
         <div class="toolbar-tools">
           <label class="search"><i data-icon="search"></i><input id="search" type="search" autocomplete="off" spellcheck="false" data-i18n-placeholder="search"></label>
+          <select id="kind" class="select" data-i18n-title="kind.title" data-i18n-label="kind.title">
+            <option value="all" data-i18n="kind.all"></option>
+            <option value="pictures" data-i18n="kind.pictures"></option>
+            <option value="videos" data-i18n="kind.videos"></option>
+          </select>
           <select id="sort" class="select">
             <option value="newest" data-i18n="sort.newest"></option>
             <option value="oldest" data-i18n="sort.oldest"></option>
@@ -73,7 +78,9 @@
     </header>
     <div class="v-body">
       <div class="v-main">
-        <div id="vStage" class="v-stage"><img id="vImg" alt="" draggable="false"></div>
+        <div id="vStage" class="v-stage"><img id="vImg" alt="" draggable="false"><video id="vVideo" hidden controls playsinline preload="metadata"></video></div>
+        <button type="button" class="v-play" data-v="play" hidden data-i18n-title="viewer.play" data-i18n-label="viewer.play"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.6v14.8L19.5 12Z" fill="currentColor"/></svg></button>
+        <p class="v-note" hidden data-i18n="viewer.cannotPlay"></p>
         <button type="button" class="v-nav prev" data-v="prev" aria-label="Previous"><span><i data-icon="chevronLeft"></i></span></button>
         <button type="button" class="v-nav next" data-v="next" aria-label="Next"><span><i data-icon="chevronRight"></i></span></button>
       </div>

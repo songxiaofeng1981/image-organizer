@@ -3,10 +3,15 @@
 // fingers to move. Number keys file the picture and go to the next one.
 // 大图查看。点图片左右两侧（或按 ← →）切换，双指捏合或 ⌘ 滚轮缩放，双击看原始大小，拖动平移，
 // 双指左右滑动切换。按数字键归类并自动跳到下一张。
+// A video plays right here (the helper serves it on 127.0.0.1, see helper/Stream.swift): Space pauses, F or a
+// double-click goes full screen, Return opens it in QuickTime Player. Formats Chrome can't play fall back to a frame
+// of the video and a button for QuickTime Player.
+// 视频直接在这里播放（助手在 127.0.0.1 上提供，见 helper/Stream.swift）：空格暂停，F 或双击全屏，回车用 QuickTime Player
+// 打开。Chrome 播不了的格式改为显示一帧画面和“用 QuickTime Player 打开”按钮。
 
 import { thumb, cachedThumb, full } from './images.js';
 import { icon, escapeHtml, menuOpen } from './ui.js';
-import { formatSize, formatDate, siteName } from './library.js';
+import { formatSize, formatDate, formatDuration, siteName } from './library.js';
 import { t } from './i18n.js';
 
 const STRIP_RADIUS = 40;
@@ -32,6 +37,9 @@ export class Viewer {
     this.img = root.querySelector('#vImg');
     this.strip = root.querySelector('#vStrip');
     this.info = root.querySelector('#vInfo');
+    this.playButton = root.querySelector('.v-play');
+    this.video = root.querySelector('#vVideo');
+    this.note = root.querySelector('.v-note');
     this.bind();
   }
 
@@ -55,6 +63,7 @@ export class Viewer {
   close() {
     if (!this.isOpen) return;
     const path = this.current?.path;
+    this.stopVideo();
     this.root.hidden = true;
     document.body.classList.remove('viewing');
     this.token++;
@@ -84,9 +93,15 @@ export class Viewer {
     this.root.querySelector('#vMeta').textContent = meta.join('  ·  ');
     this.root.querySelector('.v-nav.prev').hidden = this.index === 0;
     this.root.querySelector('.v-nav.next').hidden = this.index === this.items.length - 1;
+    this.stopVideo();
+    this.root.classList.toggle('is-video', !!x.isVideo);
+    this.playButton.hidden = true;
+    this.note.hidden = true;
     this.renderCategory();
     this.renderInfo();
     this.renderStrip();
+    if (x.isVideo) return this.showVideo(x, token);
+    this.img.hidden = false;
 
     // Show the thumbnail right away, then swap in the full picture. / 先显示缩略图，再换成大图。
     this.natural = { w: x.width || 0, h: x.height || 0 };
@@ -114,8 +129,62 @@ export class Viewer {
     // Get the neighbours ready. / 预先加载前后两张。
     for (const d of [1, -1, 2]) {
       const n = this.items[this.index + d];
-      if (n) full(n.path).catch(() => {});
+      if (n && !n.isVideo) full(n.path).catch(() => {});
     }
+  }
+
+  // ---------- video / 视频 ----------
+
+  showVideo(x, token) {
+    const v = this.video;
+    this.img.hidden = true;
+    this.stage.classList.remove('failed');
+    this.natural = { w: x.width || 16, h: x.height || 9 };
+    v.poster = cachedThumb(x.path) || '';
+    const { volume, muted } = this.hooks.volume();
+    v.volume = Math.max(0, Math.min(1, volume));
+    v.muted = muted;
+    v.hidden = false;
+    this.layoutFit();
+    this.hooks.playURL(x.path)
+      .then(url => {
+        if (token !== this.token) return;
+        v.src = url;
+        v.play().catch(() => {});
+      })
+      .catch(() => token === this.token && this.cannotPlay(x, token));
+  }
+
+  /** Chrome can't play it (ProRes …) or the helper can't serve it: a frame of it and QuickTime Player instead. */
+  cannotPlay(x, token) {
+    this.stopVideo();
+    this.img.hidden = false;
+    this.img.src = cachedThumb(x.path) || '';
+    this.playButton.hidden = false;
+    this.note.hidden = false;
+    full(x.path).then(url => token === this.token && (this.img.src = url)).catch(() => {});
+  }
+
+  stopVideo() {
+    const v = this.video;
+    if (document.fullscreenElement === v) document.exitFullscreen().catch(() => {});
+    if (document.pictureInPictureElement === v) document.exitPictureInPicture().catch(() => {});
+    v.pause();
+    if (v.hasAttribute('src')) {
+      v.removeAttribute('src');
+      v.load(); // stops reading the file / 停止读取文件
+    }
+    v.hidden = true;
+  }
+
+  get playing() {
+    return this.current?.isVideo && !this.video.hidden;
+  }
+
+  toggleFullscreen() {
+    if (!this.playing) return;
+    if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+    else this.video.requestFullscreen().catch(() => {});
   }
 
   failed() {
@@ -138,7 +207,8 @@ export class Viewer {
       this.img.style.cssText = 'left:50%;top:50%;transform:translate(-50%,-50%);max-width:90%;max-height:90%';
       return;
     }
-    this.fit = Math.min((sw - 48) / w, (sh - 32) / h, 1);
+    // Pictures stop at 100%; a video grows to fill the space, like Photos. / 图片最大 100%；视频放大铺满，和“照片”一样。
+    this.fit = Math.min((sw - 48) / w, (sh - 32) / h, this.current?.isVideo ? Infinity : 1);
     this.scale = this.fit;
     this.ox = (sw - w * this.scale) / 2;
     this.oy = (sh - h * this.scale) / 2;
@@ -150,6 +220,7 @@ export class Viewer {
     if (!w) return;
     this.clamp();
     this.img.style.cssText = `left:${this.ox}px;top:${this.oy}px;width:${w * this.scale}px;height:${h * this.scale}px`;
+    this.video.style.cssText = this.img.style.cssText;
     this.root.classList.toggle('zoomed', this.zoomed);
   }
 
@@ -168,6 +239,7 @@ export class Viewer {
   }
 
   zoomTo(scale, cx = this.stage.clientWidth / 2, cy = this.stage.clientHeight / 2) {
+    if (this.current?.isVideo) return;
     const next = Math.max(this.fit, Math.min(8, scale));
     this.ox = cx - (cx - this.ox) * (next / this.scale);
     this.oy = cy - (cy - this.oy) * (next / this.scale);
@@ -176,6 +248,7 @@ export class Viewer {
   }
 
   toggleZoom(cx, cy) {
+    if (this.current?.isVideo) return;
     if (this.zoomed) this.layoutFit();
     else this.zoomTo(Math.max(1, this.fit * 2), cx, cy);
   }
@@ -196,6 +269,7 @@ export class Viewer {
     const rows = [
       [t('info.folder'), place(x)],
       [t('info.dimensions'), x.width ? `${x.width} × ${x.height}` : '—'],
+      ...(x.isVideo ? [[t('info.duration'), formatDuration(x.duration)]] : []),
       [t('info.size'), formatSize(x.size)],
       [t('info.type'), x.ext.toUpperCase()],
       [t('info.added'), formatDate(x.addedTime)],
@@ -210,7 +284,7 @@ export class Viewer {
     if (x.duplicateOf) rows.push([t('info.duplicateOf'), x.duplicateOf.startsWith('lib:') ? `${t('info.library')}/${x.duplicateOf.slice(4)}` : `${t('downloads')}/${x.duplicateOf}`]);
     this.info.innerHTML = `<h3>${escapeHtml(x.name)}</h3><dl>${rows
       .map(([k, v]) => `<dt>${escapeHtml(k)}</dt><dd>${escapeHtml(v)}</dd>`)
-      .join('')}</dl><button type="button" class="link-button" data-v="reveal">${icon('folder')}${escapeHtml(t('revealInFinder'))}</button>
+      .join('')}</dl>${x.isVideo ? `<button type="button" class="link-button" data-v="play">${icon('play')}${escapeHtml(t('viewer.openQuickTime'))}</button>` : ''}<button type="button" class="link-button" data-v="reveal">${icon('folder')}${escapeHtml(t('revealInFinder'))}</button>
       <div class="v-keys"><h4>${escapeHtml(t('keys.title'))}</h4>${t('keys.viewer')
         .split('|')
         .map(line => {
@@ -281,6 +355,9 @@ export class Viewer {
         case 'trash': return this.hooks.trash(x.path);
         case 'category': return this.hooks.categoryMenu(x.path, b);
         case 'reveal': return this.hooks.reveal(x.path);
+        case 'play':
+          this.video.pause();
+          return this.hooks.play(x.path);
       }
     });
     this.strip.addEventListener('click', e => {
@@ -288,6 +365,10 @@ export class Viewer {
       if (b) this.show(Number(b.dataset.index));
     });
     this.stage.addEventListener('dblclick', e => {
+      if (this.current?.isVideo) {
+        e.preventDefault();
+        return this.toggleFullscreen();
+      }
       const s = this.stage.getBoundingClientRect();
       this.toggleZoom(e.clientX - s.left, e.clientY - s.top);
     });
@@ -297,6 +378,7 @@ export class Viewer {
     this.stage.addEventListener('wheel', e => {
       e.preventDefault();
       const s = this.stage.getBoundingClientRect();
+      if (this.current?.isVideo && (e.ctrlKey || e.metaKey || Math.abs(e.deltaX) <= Math.abs(e.deltaY))) return;
       if (e.ctrlKey || e.metaKey) {
         this.zoomTo(this.scale * Math.exp(-e.deltaY * 0.01), e.clientX - s.left, e.clientY - s.top);
       } else if (this.zoomed) {
@@ -340,6 +422,10 @@ export class Viewer {
     this.stage.addEventListener('pointerup', end);
     this.stage.addEventListener('pointercancel', end);
     new ResizeObserver(() => this.isOpen && this.layoutFit()).observe(this.stage);
+    this.video.addEventListener('error', () => {
+      if (this.playing && this.video.hasAttribute('src')) this.cannotPlay(this.current, this.token);
+    });
+    this.video.addEventListener('volumechange', () => this.hooks.setVolume({ volume: this.video.volume, muted: this.video.muted }));
   }
 
   /** Keyboard, called by main.js while the viewer is open. Returns true when handled. */
@@ -360,6 +446,12 @@ export class Viewer {
     else if (k === 'Backspace' || k === 'Delete') this.hooks.trash(this.current.path);
     else if (/^[0-9]$/.test(k) && !e.metaKey && !e.ctrlKey) this.hooks.assignByNumber(this.current.path, Number(k));
     else if (k === 'c' || k === 'C') this.hooks.categoryMenu(this.current.path, this.root.querySelector('[data-v="category"]'));
+    else if (k === ' ' && this.playing) this.video.paused ? this.video.play().catch(() => {}) : this.video.pause();
+    else if ((k === 'f' || k === 'F') && this.playing) this.toggleFullscreen();
+    else if (k === 'Enter' && this.current?.isVideo) {
+      this.video.pause();
+      this.hooks.play(this.current.path);
+    }
     else return false;
     this.wake();
     return true;

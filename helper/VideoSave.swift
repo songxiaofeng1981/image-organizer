@@ -9,7 +9,6 @@
 import CryptoKit
 import Foundation
 
-let videoExtensions: Set<String> = ["mp4", "mov", "m4v"]
 let maxVideoSize = 4 * 1024 * 1024 * 1024 // 4 GB
 let partialPrefix = ".io-video-"
 

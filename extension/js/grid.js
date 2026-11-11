@@ -8,6 +8,7 @@
 import { thumb, cachedThumb } from './images.js';
 import { icon } from './ui.js';
 import { t } from './i18n.js';
+import { formatDuration } from './library.js';
 
 const GAP = 4;
 const PAD = 20;
@@ -161,6 +162,8 @@ export class Grid {
     if (tile.kind === 'group') {
       el.insertAdjacentHTML('beforeend', `<span class="stack-count">${icon('stack')}${tile.items.length}</span><span class="tile-caption"></span>`);
       el.querySelector('.tile-caption').textContent = tile.group.name;
+    } else if (tile.item.isVideo) {
+      el.insertAdjacentHTML('beforeend', `<span class="tile-badge">${icon('play')}${formatDuration(tile.item.duration)}</span>`);
     } else if (tile.item.ext === 'gif') {
       el.insertAdjacentHTML('beforeend', '<span class="tile-badge">GIF</span>');
     }

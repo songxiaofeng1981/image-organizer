@@ -41,7 +41,7 @@ extension/            plain HTML/CSS/ES modules, no build step
   js/i18n.js          every UI string, en + zh
 helper/               one program, one file per part: main.swift (dispatch), Core.swift (framing, errors, resolve()
                       path gate), Library.swift (settings, index, tags, checked moves), Manage.swift (gallery requests),
-                      PictureSave.swift (`save`), VideoSave.swift (video pieces). "lib:" paths = library
+                      Stream.swift (127.0.0.1 server for playing videos in the page), PictureSave.swift (`save`), VideoSave.swift (video pieces). "lib:" paths = library
 dev/                  serve.py + chrome-shim.js (run the page in a normal tab), protocol_test.py, make_samples.py,
                       make_diagrams.py (docs/images/architecture*.svg, modules*.svg)
 scripts/package.sh    release zip (universal helper)
@@ -51,7 +51,7 @@ scripts/package.sh    release zip (universal helper)
 
 - Managing the gallery, saving pictures and saving videos are separate parts, in the extension and in the helper.
   Don't mix them: shared code goes into Core/Library.swift or host/store/page/i18n.js.
-- No build step; the helper never goes online; the extension fetches only pictures the user picked on a page
+- No build step; the helper never goes online (its only listener is the 127.0.0.1 video server in Stream.swift, for playing in the page); the extension fetches only pictures the user picked on a page
   (inside that page first) and sends nothing anywhere; helper stdout is protocol only.
 - Every UI string in `i18n.js`, both languages. Docs: change both language versions.
 - Extension CSP: no `style="…"` in HTML strings; set colors with CSSOM (`el.style.x`, `paintDots`).

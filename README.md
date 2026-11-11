@@ -36,6 +36,7 @@ Neither helps with the actual job: **go through them quickly, keep what matters,
 - **Select like in Photos**: click the circle, ⌘-click, Shift-click a range, or drag a box.
 - **A proper viewer**: click the left or right side of the picture to move, swipe with two fingers, pinch to zoom, double-click for 100%, and a film strip at the bottom.
 - **HEIC and TIFF** are shown too (converted in memory by macOS; the original is never changed).
+- **Videos are there too** (2.5 in development), mixed with the pictures the way Apple Photos does, with their length on the tile. "All / Pictures / Videos" at the top right shows only one kind. Open a video and it plays right there; Return opens it in QuickTime Player.
 - **Light and dark mode**, following your Mac.
 
 | Sorting in the viewer | Selecting several pictures |
@@ -73,8 +74,8 @@ Upgrading from 1.x? Just run the new installer and click reload on the existing 
 ## Privacy and safety
 
 - **Only the page you ask for.** The extension reads a web page only when you click its icon or its right-click menu there (Chrome's `activeTab`), and asks for no access to all websites. New in 2.4: permission to manage downloads (for **Save to Downloads**).
-- **Nothing leaves your Mac.** The helper never goes online. The extension only fetches the pictures you pick on a web page, inside that page, and sends nothing anywhere. The "Downloaded from" information is read from your own files; only website names are used.
-- **Only Downloads and your picture library, only pictures.** The helper refuses any path outside those two folders, hidden files, symbolic links and non-image files.
+- **Nothing leaves your Mac.** The helper never goes online. To play a video in the gallery it serves that file on 127.0.0.1 only (your own Mac, behind a random token that changes every time), and stops when you close the gallery. The extension only fetches the pictures you pick on a web page, inside that page, and sends nothing anywhere. The "Downloaded from" information is read from your own files; only website names are used.
+- **Only Downloads and your picture library, only pictures and videos.** The helper refuses any path outside those two folders, hidden files, symbolic links, and files that are neither pictures nor videos (MP4, MOV, M4V).
 - **Never deletes.** "Move to Trash" uses the macOS Trash, so you can always put a file back from Finder. Moving to another drive removes the original only after an identical copy is in place.
 - **Never changes your pictures' content.** Pixels and EXIF stay as they are. Filing adds a Finder tag and comment (file attributes, visible in Finder) and keeps a hidden `.image-organizer.json` index in the library folder. Category colors and groups are stored by Chrome for this extension.
 - **Not running in the background.** Chrome starts the helper when the gallery opens and it quits when the tab closes.

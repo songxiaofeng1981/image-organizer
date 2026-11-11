@@ -148,7 +148,9 @@ Each request is a JSON object with an `id` and an `op`. The helper answers with 
 | `{op: "hello"}` | `{type: "result", version}` |
 | `{op: "list"}` | `{type: "images", items: [...]}` batches of 200, then `{type: "done"}` |
 | `{op: "thumb", path, size}` | `{type: "chunk", data}` (base64, ≤512 KB each)…, then `{type: "done", mime}`. JPEG, or the SVG file itself. |
-| `{op: "full", path}` | Same as thumb. The original bytes for formats Chrome shows; a JPEG (≤4096 px) for HEIC/HEIF/TIFF. |
+| `{op: "full", path}` | Same as thumb. The original bytes for formats Chrome shows; a JPEG (≤4096 px) for HEIC/HEIF/TIFF; for a video, a JPEG of one frame (≤2048 px), never the video itself. |
+| `{op: "play", path}` | `{type: "result", ok}` (opens a video in QuickTime Player or the user's video app; pictures are refused). Helper 2.5.1. |
+| `{op: "playURL", path}` | `{type: "result", ok, url}`: `http://127.0.0.1:<port>/v/<token>/<n>` for `<video src>`. Helper 2.5.2, `Stream.swift`: Chrome refuses `file://` video in extension pages, so the helper serves the video itself, only on 127.0.0.1, on a port the system picks, started on the first `playURL` and gone when the helper exits. The token is random per run; the address holds a number, never a path, and only videos that passed `resolve()` get one. GET and HEAD with `Range`; MP4/M4V/MOV all as `video/mp4`; read-only. The CSP allows `media-src http://127.0.0.1:*`. Same approach as VideoLib (`songxiaofeng1981/videolib`, PROTOCOL section 6). |
 | `{op: "trash", paths: [...]}` | `{type: "result", ok, trashed: [...], failed: [{path, error}]}` |
 | `{op: "reveal", path}` | `{type: "result", ok}` (opens a Finder window with the file selected) |
 | `{op: "config", name}` | `{type: "result", library?, available, suggestions: [...]}`. `name` is the folder name for suggestions ("Picture Library"). |

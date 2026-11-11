@@ -148,7 +148,9 @@ Chrome 插件不能随意读取本地文件夹。File System Access API 每次�
 | `{op: "hello"}` | `{type: "result", version}` |
 | `{op: "list"}` | 每批 200 条的 `{type: "images", items: [...]}`，最后 `{type: "done"}` |
 | `{op: "thumb", path, size}` | 若干 `{type: "chunk", data}`（base64，每块 ≤512 KB），最后 `{type: "done", mime}`。内容是 JPEG，或 SVG 文件本身。 |
-| `{op: "full", path}` | 和 thumb 相同。Chrome 能显示的格式返回原始字节；HEIC/HEIF/TIFF 返回 JPEG（≤4096 像素）。 |
+| `{op: "full", path}` | 和 thumb 相同。Chrome 能显示的格式返回原始字节；HEIC/HEIF/TIFF 返回 JPEG（≤4096 像素）；视频返回一帧画面的 JPEG（≤2048 像素），从不发送视频本身。 |
+| `{op: "play", path}` | `{type: "result", ok}`（用 QuickTime Player 或用户设定的视频 App 打开视频；图片会被拒绝）。助手 2.5.1。 |
+| `{op: "playURL", path}` | `{type: "result", ok, url}`：`http://127.0.0.1:<端口>/v/<口令>/<编号>`，给 `<video src>` 用。助手 2.5.2，`Stream.swift`：Chrome 不许插件页面播放 `file://` 视频，所以由助手自己提供视频：只监听 127.0.0.1，端口由系统分配，第一次 `playURL` 时才开，助手退出就没了。口令每次启动随机生成；地址里只有编号、没有路径，只有通过 `resolve()` 的视频才会分到编号。支持 GET、HEAD 和 `Range`；MP4/M4V/MOV 都按 `video/mp4` 返回；只读。CSP 加了 `media-src http://127.0.0.1:*`。做法和 VideoLib 相同（`songxiaofeng1981/videolib`，PROTOCOL 第 6 节）。 |
 | `{op: "trash", paths: [...]}` | `{type: "result", ok, trashed: [...], failed: [{path, error}]}` |
 | `{op: "reveal", path}` | `{type: "result", ok}`（打开访达并选中该文件） |
 | `{op: "config", name}` | `{type: "result", library?, available, suggestions: [...]}`。`name` 是建议位置用的文件夹名（“图片库”）。 |

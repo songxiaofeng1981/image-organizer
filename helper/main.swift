@@ -1,4 +1,4 @@
-// main.swift: routes each request to its part (Manage, PictureSave, VideoSave, Library) and runs the
+// main.swift: routes each request to its part (Manage, Stream, PictureSave, VideoSave, Library) and runs the
 // read loop. Only this file may run code at the top level.
 // main.swift：把每个请求交给对应的部分，并运行读取循环。只有这个文件能在顶层直接运行代码。
 
@@ -17,6 +17,8 @@ func handle(_ request: [String: Any]) {
         case "full": try full(id: id, path: path)
         case "trash": try trash(id: id, paths: request["paths"] as? [String] ?? [])
         case "reveal": try reveal(id: id, path: path)
+        case "play": try play(id: id, path: path)
+        case "playURL": try playURL(id: id, path: path)
         case "config": try config(id: id, name: request["name"] as? String ?? "Picture Library")
         case "setLibrary": try setLibrary(id: id, path: path, name: request["name"] as? String ?? "Picture Library")
         case "chooseFolder": try chooseFolder(id: id, prompt: request["prompt"] as? String ?? "")
@@ -55,7 +57,7 @@ func selftest() -> Never {
         let t1 = Date()
         var failures = 0
         for e in sample {
-            if (try? jpeg(e.url, maxPixelSize: 512)) == nil { failures += 1; print("  cannot decode / 无法解码: \(e.relative)") }
+            if (try? previewJPEG(e.url, maxPixelSize: 512)) == nil { failures += 1; print("  cannot decode / 无法解码: \(e.relative)") }
         }
         print(String(format: "Made %d thumbnails in %.2fs / 生成 %d 张缩略图，用时 %.2f 秒", sample.count, Date().timeIntervalSince(t1), sample.count, Date().timeIntervalSince(t1)))
         exit(failures == 0 ? 0 : 1)

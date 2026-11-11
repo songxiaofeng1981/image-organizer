@@ -6,6 +6,10 @@ import { data, categoryOf, inLibrary } from './store.js';
 import { t, lang } from './i18n.js';
 
 const DAY = 86400000;
+// Videos are listed with the pictures (2.5); the toolbar's “All / Pictures / Videos” menu narrows any view.
+// 视频和图片放在一起（2.5）；工具栏的“全部 / 图片 / 视频”菜单可以在任何视图里只看其中一种。
+const VIDEO_EXT = new Set(['mp4', 'mov', 'm4v']);
+const KINDS = { pictures: x => !x.isVideo, videos: x => x.isVideo };
 
 const startOfToday = () => {
   const d = new Date();
@@ -53,6 +57,7 @@ const WEB_ASSET_NAME = /^(favicon|logo|icon|avatar|sprite|badge|emoji)([-_.\d]|$
  * 不值得看的小图：网站图标、logo、界面图标、网页打包产生的素材。除“小图标”和你手动归入的分类外，其他地方都不显示。
  */
 function isIcon(x) {
+  if (x.isVideo) return false;
   if (x.ext === 'ico' || x.ext === 'svg') return true;
   const side = Math.max(x.width, x.height);
   if (!side) return false;
@@ -117,6 +122,8 @@ export function prepare(items) {
       aspect: x.width > 0 && x.height > 0 ? x.width / x.height : 1,
     };
     y.sites = [...new Set(y.from.map(siteOf).filter(Boolean))];
+    y.isVideo = VIDEO_EXT.has(x.ext);
+    y.duration = x.duration || 0;
     // "iPhone 17" and "NIKON Z 6" already name the maker; "EOS R6" needs "Canon" in front.
     // “iPhone 17”“NIKON Z 6”已包含厂商；“EOS R6”前面要加上“Canon”。
     const make = x.make || '';
@@ -134,7 +141,7 @@ export function prepare(items) {
   const runs = new Map();
   const runKey = x => {
     const m = x.name.match(/^(.*?)[-_ ]?\d+\.[^.]+$/);
-    return m && !x.isPhoto && !x.isScreenshot && !/^img$/i.test(m[1]) ? `${x.folder}/${m[1].toLowerCase()}|${x.ext}` : null;
+    return m && !x.isVideo && !x.isPhoto && !x.isScreenshot && !/^img$/i.test(m[1]) ? `${x.folder}/${m[1].toLowerCase()}|${x.ext}` : null;
   };
   for (const x of out) {
     const k = runKey(x);
@@ -228,14 +235,15 @@ export function allGroups(items) {
  *   tiles: what the grid shows (a group folds into one tile, except inside the group's own view)
  *   sections: tiles split into date sections when sorted by date
  */
-export function compute(all, { view, search, sort, hidden }) {
+export function compute(all, { view, search, sort, kind, hidden }) {
   const q = search.trim().toLocaleLowerCase();
-  const groups = allGroups(all.filter(x => !hidden.has(x.path)));
+  const ofKind = KINDS[kind] || (() => true);
+  const groups = allGroups(all.filter(x => !hidden.has(x.path) && ofKind(x)));
   let items;
   if (view.startsWith('group:')) {
     items = [...(groups.get(view.slice(6))?.items || [])];
   } else {
-    items = all.filter(x => !hidden.has(x.path) && shows(x, view) && inView(x, view));
+    items = all.filter(x => !hidden.has(x.path) && ofKind(x) && shows(x, view) && inView(x, view));
   }
   if (q) items = items.filter(x => `${x.name} ${x.folder}`.toLocaleLowerCase().includes(q));
   if (!view.startsWith('group:') || sort !== 'newest') items.sort(SORTS[sort] || SORTS.newest);
@@ -290,6 +298,14 @@ export function formatSize(n) {
   if (n < 1024) return `${n} B`;
   if (n < 1048576) return `${Math.round(n / 1024)} KB`;
   return `${(n / 1048576).toFixed(1)} MB`;
+}
+
+/** A video's length: "0:42", "12:05", "1:02:03". / 视频时长。 */
+export function formatDuration(seconds) {
+  const s = Math.max(0, Math.round(seconds || 0));
+  const mm = Math.floor((s % 3600) / 60);
+  const ss = String(s % 60).padStart(2, '0');
+  return s >= 3600 ? `${Math.floor(s / 3600)}:${String(mm).padStart(2, '0')}:${ss}` : `${mm}:${ss}`;
 }
 
 export function formatDate(time) {

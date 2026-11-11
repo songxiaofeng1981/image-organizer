@@ -14,7 +14,7 @@ const OLD_GROUPS = 'image-organizer:.image-groups.json';
 
 export const COLORS = ['#FF3B30', '#FF9500', '#FFCC00', '#34C759', '#00C7BE', '#007AFF', '#AF52DE', '#FF2D55'];
 
-export const DEFAULT_PREFS = { sort: 'newest', rowHeight: 190, infoOpen: false, collapsed: [] };
+export const DEFAULT_PREFS = { sort: 'newest', kind: 'all', rowHeight: 190, infoOpen: false, collapsed: [], volume: 1, muted: false };
 
 export const data = {
   categories: [], // [{ id, name, color }]

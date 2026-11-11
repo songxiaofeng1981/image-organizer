@@ -6,8 +6,8 @@
 set -euo pipefail
 HERE="$(cd "$(dirname "$0")" && pwd)"
 APP="$HERE/build/ImageOrganizerHelper.app"
-# One program from several files: main.swift (dispatch), Core, Library, Manage, PictureSave, VideoSave.
-# 一个程序，多个源文件：main.swift（分发）、Core、Library、Manage、PictureSave、VideoSave。
+# One program from several files: main.swift (dispatch), Core, Library, Manage, Stream, PictureSave, VideoSave.
+# 一个程序，多个源文件：main.swift（分发）、Core、Library、Manage、Stream、PictureSave、VideoSave。
 SRC=("$HERE"/*.swift)
 rm -rf "$APP"
 mkdir -p "$APP/Contents/MacOS"

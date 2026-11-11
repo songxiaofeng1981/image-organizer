@@ -196,6 +196,59 @@ def video_tests(h, lib):
     check("a video into a bad folder is refused", send(video[:5000], folder="../x").get("type") == "error")
 
 
+def stream_tests(h, root, path):
+    """Playing a video in the page from 127.0.0.1 (helper 2.5.2). / 在页面里从 127.0.0.1 播放视频。"""
+    import urllib.error
+    import urllib.request
+
+    def get(url, method="GET", headers=None):
+        try:
+            with urllib.request.urlopen(urllib.request.Request(url, method=method, headers=headers or {}), timeout=5) as r:
+                return r.status, dict(r.headers), r.read()
+        except urllib.error.HTTPError as e:
+            return e.code, dict(e.headers), b""
+
+    r = h.ask("playURL", path=path)
+    url = r.get("url", "")
+    check("playURL gives a 127.0.0.1 address with no file path in it",
+          url.startswith("http://127.0.0.1:") and "/v/" in url and path.split(".")[0] not in url)
+    check("the same video keeps its address", h.ask("playURL", path=path).get("url") == url)
+    whole = open(os.path.join(root, path), "rb").read()
+    status, headers, body = get(url)
+    check("serves the whole video as video/mp4", status == 200 and body == whole and headers.get("Content-Type") == "video/mp4"
+          and headers.get("Accept-Ranges") == "bytes")
+    status, headers, body = get(url, headers={"Range": "bytes=100-1099"})
+    check("serves a range (seeking)", status == 206 and body == whole[100:1100]
+          and headers.get("Content-Range") == f"bytes 100-1099/{len(whole)}")
+    status, _, body = get(url, headers={"Range": "bytes=-500"})
+    check("serves the end of the file", status == 206 and body == whole[-500:])
+    check("refuses a range past the end", get(url, headers={"Range": f"bytes={len(whole) + 10}-"})[0] == 416)
+    status, headers, body = get(url, method="HEAD")
+    check("HEAD gives the size only", status == 200 and headers.get("Content-Length") == str(len(whole)) and body == b"")
+    base, number = url.rsplit("/", 1)
+    token_part = base.rsplit("/", 1)
+    check("a wrong token is refused", get(token_part[0] + "/wrongtoken/" + number)[0] == 403)
+    check("a number it did not hand out is refused", get(base + "/999")[0] == 404)
+    check("only GET and HEAD", get(url, method="POST")[0] == 405)
+    check("playURL refuses pictures and bad paths", h.ask("playURL", path="wallpaper.jpg").get("error") == "unsupported_type"
+          and h.ask("playURL", path="../x.mp4").get("type") == "error")
+    listening = subprocess.run(["lsof", "-a", "-p", str(h.p.pid), "-iTCP", "-sTCP:LISTEN", "-nP"], capture_output=True, text=True).stdout
+    check("listens on 127.0.0.1 only", "127.0.0.1:" in listening and "*:" not in listening)
+
+
+def filing_video_tests(h, root):
+    """Videos are filed, put back and listed like pictures. / 视频和图片一样归类、放回和列出。"""
+    name = "抖音_秋天的厨房.mp4"
+    if not os.path.exists(os.path.join(root, name)):
+        return print("SKIP  filing a video (no sample videos) / 没有示例视频")
+    r = h.ask("file", items=[{"path": name}], folder="工作", tag={"name": "工作", "color": 4})
+    check("a video is filed into a category like a picture", r.get("ok") and r["moved"][0]["to"] == "lib:工作/" + name)
+    listed = next((i for i in h.ask("list") if i["path"] == "lib:工作/" + name), {})
+    check("a filed video is listed in the library with its length", listed.get("library") is True and listed.get("duration") == 3.0)
+    r = h.ask("unfile", items=[{"path": "lib:工作/" + name, "removeTag": "工作"}])
+    check("a filed video goes back to Downloads", r.get("ok") and r["moved"][0]["to"] == name and os.path.exists(os.path.join(root, name)))
+
+
 def main(root):
     config = root.rstrip("/") + "-config"
     shutil.rmtree(config, ignore_errors=True)
@@ -218,6 +271,21 @@ def main(root):
     check("JPEG full view is the original bytes", data == open(os.path.join(root, "wallpaper.jpg"), "rb").read())
     for bad in ["../etc/passwd", "/etc/hosts", ".hidden.png", "link.png", "notes.txt", "node_modules/../wallpaper.jpg"]:
         check(f"refuses {bad!r}", h.ask("full", path=bad).get("type") == "error")
+    clip = next((i for i in items if i["path"] == "抖音_秋天的厨房.mp4"), None)
+    if clip is None:
+        print("SKIP  videos in the gallery (no sample videos: FFmpeg missing) / 没有示例视频")
+    else:
+        mov = next((i for i in items if i["path"] == "Travel/kyoto_walk.mov"), {})
+        check("lists videos with their shown size and length",
+              (clip["width"], clip["height"], clip.get("duration")) == (360, 640, 3.0) and mov.get("duration") == 75.0)
+        check("video keeps its download record", clip.get("from") == ["www.douyin.com"])
+        data, mime = h.ask("thumb", path=clip["path"], size=256)
+        check("video thumbnail is a JPEG frame", mime == "image/jpeg" and data[:2] == b"\xff\xd8")
+        data, mime = h.ask("full", path=mov["path"])
+        check("video full view is a JPEG poster, not the video", mime == "image/jpeg" and data[:2] == b"\xff\xd8" and len(data) < 1_000_000)
+        check("play refuses pictures and bad paths", h.ask("play", path="wallpaper.jpg").get("error") == "unsupported_type"
+              and h.ask("play", path="../x.mp4").get("type") == "error")
+        stream_tests(h, root, clip["path"])
     target = "chair_2_reference.png"
     r = h.ask("trash", paths=[target, "../outside.png"])
     check("trash moves allowed file, refuses the other",
@@ -230,6 +298,7 @@ def main(root):
     try:
         library_tests(h, root, lib)
         video_tests(h, lib)
+        filing_video_tests(h, root)
     finally:
         if os.environ.get("IO_TEST_LIBRARY"):
             shutil.rmtree(lib, ignore_errors=True)

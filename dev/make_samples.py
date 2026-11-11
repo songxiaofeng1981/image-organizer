@@ -3,11 +3,11 @@
 
 Usage / 用法:  python3 dev/make_samples.py /tmp/io-samples
 
-Only uses the Python standard library and macOS `sips`. Creates PNG, JPEG, HEIC, TIFF,
-GIF and SVG files of different shapes, a sub-folder, Xiaohongshu-style numbered sets
+Only uses the Python standard library and macOS `sips` (plus FFmpeg for the sample videos, when it is
+installed). Creates PNG, JPEG, HEIC, TIFF, GIF and SVG files of different shapes, two short videos, a sub-folder, Xiaohongshu-style numbered sets
 (auto-grouped by the app), and things the helper must skip (hidden files, node_modules,
 a symbolic link).
-只用 Python 标准库和 macOS 自带的 sips。生成不同比例的 PNG、JPEG、HEIC、TIFF、GIF、SVG，
+只用 Python 标准库和 macOS 自带的 sips（装了 FFmpeg 时再用它生成示例视频）。生成不同比例的 PNG、JPEG、HEIC、TIFF、GIF、SVG，两段短视频，
 一个子文件夹、小红书式的编号组图（应用会自动成组），以及助手必须跳过的东西
 （隐藏文件、node_modules、符号链接）。
 """
@@ -37,6 +37,17 @@ def png(path, w, h, rgb1, rgb2):
     with open(path, "wb") as f:
         f.write(b"\x89PNG\r\n\x1a\n" + chunk(b"IHDR", struct.pack(">IIBBBBB", w, h, 8, 2, 0, 0, 0))
                 + chunk(b"IDAT", raw) + chunk(b"IEND", b""))
+
+
+def video(path, w, h, seconds):
+    """A short test-pattern video (H.264 MP4 or QuickTime by the name), when FFmpeg is installed. / 一段测试图案短视频（需要 FFmpeg）。"""
+    ffmpeg = shutil.which("ffmpeg")
+    if not ffmpeg:
+        print(f"FFmpeg not found, skipped / 没有 FFmpeg，跳过: {path}")
+        return False
+    subprocess.run([ffmpeg, "-y", "-loglevel", "error", "-f", "lavfi", "-i", f"testsrc2=size={w}x{h}:rate=25",
+                    "-t", str(seconds), "-pix_fmt", "yuv420p", "-c:v", "libx264", path], check=True)
+    return True
 
 
 def where_from(path, *urls):
@@ -93,6 +104,10 @@ def main(out):
     make("Travel/kyoto_01.jpg", "jpeg", (640, 427))
     make("Travel/kyoto_02.jpg", "jpeg", (427, 640))
     make("Design/moodboard/texture.jpg", "jpeg")
+    # Videos, shown alongside the pictures (2.5) / 视频，和图片放在一起显示（2.5）
+    if video(os.path.join(out, "抖音_秋天的厨房.mp4"), 360, 640, 3):
+        where_from(os.path.join(out, "抖音_秋天的厨房.mp4"), "https://www.douyin.com/video/1")
+    video(os.path.join(out, "Travel/kyoto_walk.mov"), 640, 360, 75)
     # Things the smart categories should find / 智能分类应该识别出的情况
     make("IMG_6078.jpeg", "jpeg", (480, 640))
     camera(os.path.join(out, "IMG_6078.jpeg"), "Apple", "iPhone 17")
